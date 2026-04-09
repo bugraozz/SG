@@ -1,0 +1,260 @@
+.pricing-section {
+  padding: 8rem 0;
+}
+
+.pricing-header {
+  text-align: center;
+  margin-bottom: 5rem;
+}
+
+.pricing-badge {
+  display: inline-block;
+  background: rgba(1, 69, 242, 0.1);
+  color: var(--theme-cloud);
+  padding: 0.4rem 1.2rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(1, 69, 242, 0.15);
+}
+
+.pricing-title {
+  font-size: clamp(2.2rem, 4.5vw, 3.5rem);
+  font-weight: 800;
+  color: var(--text-dark);
+  margin-bottom: 1rem;
+}
+
+.pricing-subtitle {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* Grid */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+  perspective: 1000px;
+}
+
+/* Card */
+.pricing-card {
+  background: var(--bg-secondary);
+  border: 1px solid rgba(1, 69, 242, 0.3);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  transition: var(--transition);
+  transform-style: preserve-3d;
+  position: relative;
+}
+
+.pricing-card:hover {
+  box-shadow: 0 25px 60px rgba(1, 69, 242, 0.2);
+}
+
+.featured-card {
+  border: 2px solid var(--plan-color);
+  transform: scale(1.05);
+  z-index: 2;
+}
+
+.featured-card:hover {
+  transform: scale(1.07);
+}
+
+.pricing-popular-badge {
+  background: var(--plan-color);
+  color: white;
+  text-align: center;
+  padding: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.pricing-card-inner {
+  padding: 2.5rem;
+}
+
+.plan-name {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.plan-desc {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+}
+
+.plan-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(1, 69, 242, 0.24);
+}
+
+.premium-card-electric {
+  border-radius: var(--border-radius);
+}
+
+.premium-card-electric .featured-card {
+  border-color: transparent;
+}
+
+.premium-card-electric .featured-card:hover {
+  box-shadow: none;
+}
+
+.premium-card-electric .feature-check {
+  color: #f50a0a;
+}
+
+.plan-price {
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--text-dark);
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -0.03em;
+}
+
+.plan-period {
+  font-size: 1rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Button */
+.pricing-btn {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid rgba(1, 69, 242, 0.35);
+  background: transparent;
+  color: var(--text-dark);
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: 'Inter', sans-serif;
+  margin-bottom: 2rem;
+}
+
+.pricing-btn:hover {
+  background: rgba(1, 69, 242, 0.12);
+  border-color: var(--plan-color);
+  color: var(--theme-cloud);
+}
+
+.premium-btn {
+  background: #ca0d1c;
+  border-color: #ca0d1c;
+  color: white;
+}
+
+.premium-btn:hover {
+  background: #E2313F;
+  border-color: #E2313F;
+  color: white;
+  box-shadow: 0 8px 25px rgba(255, 59, 74, 0.38);
+}
+
+.elite-btn {
+  background: transparent;
+  border-color: #0145F2;
+  color: var(--theme-cloud);
+}
+
+.elite-btn:hover {
+  background: #0145F2;
+  border-color: #0145F2;
+  color: white;
+  box-shadow: 0 8px 25px rgba(1, 69, 242, 0.35);
+}
+
+/* Features */
+.plan-features {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.plan-feature {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--text-body);
+}
+
+.feature-check {
+  color: var(--theme-electric);
+  font-weight: 700;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.plan-feature.unavailable {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+.feature-x {
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+/* Guarantee */
+.pricing-guarantee {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 4rem;
+  padding: 1.5rem 2rem;
+  background: rgba(15, 23, 40, 0.92);
+  border-radius: 12px;
+  border: 1px solid rgba(1, 69, 242, 0.3);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.guarantee-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.pricing-guarantee p {
+  font-size: 0.9rem;
+  color: var(--text-body);
+  line-height: 1.5;
+}
+
+@media (max-width: 1024px) {
+  .pricing-grid {
+    grid-template-columns: 1fr;
+    max-width: 450px;
+    margin: 0 auto;
+  }
+  .featured-card {
+    transform: none;
+  }
+  .featured-card:hover {
+    transform: none;
+  }
+}

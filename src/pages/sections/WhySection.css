@@ -1,0 +1,192 @@
+.advantage-section {
+  padding: 5.5rem 0 4.5rem;
+  overflow: hidden;
+}
+
+.advantage-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.advantage-badge {
+  display: inline-block;
+  background: rgba(1, 69, 242, 0.16);
+  border: 1px solid rgba(1, 69, 242, 0.35);
+  color: var(--theme-cloud);
+  padding: 0.4rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.advantage-title {
+  font-size: clamp(2.2rem, 4.5vw, 3.2rem);
+  font-weight: 800;
+  color: var(--text-dark);
+  margin-bottom: 1rem;
+  letter-spacing: -0.03em;
+}
+
+.advantage-subtitle {
+  max-width: 700px;
+  margin: 0 auto;
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.advantage-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.3rem;
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+.advantage-card {
+  position: relative;
+  z-index: 1;
+  will-change: transform, opacity;
+  transition: transform 0.35s ease;
+}
+
+.advantage-card.tilt-left {
+  transform: rotate(-1.5deg) translateY(12px);
+}
+
+.advantage-card.center-down {
+  transform: translateY(28px);
+  z-index: 2;
+}
+
+.advantage-card.tilt-right {
+  transform: rotate(1.5deg) translateY(10px);
+}
+
+.advantage-card-inner {
+  position: relative;
+  padding: 2rem 1.6rem 1.5rem;
+  border-radius: 18px;
+  color: white;
+  text-align: left;
+  border: 1px solid rgba(1, 69, 242, 0.35);
+  background:
+    linear-gradient(165deg, rgba(18, 46, 128, 0.78), rgba(7, 20, 54, 0.84));
+  box-shadow: 0 18px 40px rgba(1, 69, 242, 0.2);
+  min-height: 300px;
+  animation: floatCard 6s ease-in-out infinite;
+  will-change: transform;
+  overflow: hidden;
+}
+
+.advantage-card-inner::after {
+  content: '';
+  position: absolute;
+  top: -70px;
+  right: -70px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(237, 241, 245, 0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.advantage-card:hover {
+  transform: translateY(-8px) rotate(0deg) !important;
+}
+
+.advantage-card.tilt-left .advantage-card-inner {
+  animation-delay: 0s;
+}
+.advantage-card.center-down .advantage-card-inner {
+  animation-delay: -2s;
+}
+.advantage-card.tilt-right .advantage-card-inner {
+  animation-delay: -4s;
+}
+
+@keyframes floatCard {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.advantage-card-no {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: var(--theme-cloud);
+  background: rgba(1, 69, 242, 0.3);
+  border: 1px solid rgba(237, 241, 245, 0.22);
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  margin-bottom: 1rem;
+}
+
+.advantage-card-title {
+  font-size: 1.35rem;
+  color: var(--theme-cloud);
+  margin-bottom: 0.75rem;
+  line-height: 1.25;
+}
+
+.advantage-text {
+  font-size: 0.98rem;
+  font-weight: 500;
+  line-height: 1.65;
+  margin: 0 0 1rem;
+  color: var(--text-body);
+}
+
+.advantage-points {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.advantage-points li {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.advantage-points li::before {
+  content: '•';
+  color: var(--theme-cloud);
+  font-weight: 700;
+}
+
+@media (max-width: 1024px) {
+  .advantage-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .advantage-card {
+    transform: none !important;
+  }
+
+  .advantage-card-inner {
+    min-height: 280px;
+  }
+}
+
+@media (max-width: 720px) {
+  .advantage-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .advantage-title {
+    margin-bottom: 0.75rem;
+  }
+
+  .advantage-card-inner {
+    min-height: auto;
+  }
+}

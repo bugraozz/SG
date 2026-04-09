@@ -1,0 +1,68 @@
+.transform-section {
+  padding: 8rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.transform-content {
+  text-align: center;
+  position: relative;
+}
+
+.transform-title {
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 2.5rem;
+  letter-spacing: -0.03em;
+}
+
+.transform-title-line {
+  display: block;
+  overflow: hidden;
+}
+
+.emoji-inline {
+  display: inline-block;
+  font-size: 0.8em;
+  vertical-align: middle;
+}
+
+.transform-subtitle {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Floating emojis */
+.floating-emojis {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.floating-emoji {
+  position: absolute;
+  font-size: 2.5rem;
+  opacity: 0.6;
+  will-change: transform;
+}
+
+.emoji-1 { top: 5%; left: 8%; }
+.emoji-2 { top: 15%; right: 12%; }
+.emoji-3 { top: 60%; left: 5%; }
+.emoji-4 { top: 50%; right: 8%; }
+.emoji-5 { bottom: 10%; left: 15%; }
+.emoji-6 { bottom: 20%; right: 15%; }
+
+.transform-title,
+.transform-subtitle {
+  position: relative;
+  z-index: 1;
+}

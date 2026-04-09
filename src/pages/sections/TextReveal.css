@@ -1,0 +1,51 @@
+.text-reveal-section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(3rem, 8vh, 6rem) 0;
+  margin: 0;
+  background: transparent;
+  position: relative;
+  overflow: clip;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%);
+}
+
+.text-reveal-container {
+  max-width: 900px;
+  padding: 0 0rem;
+  margin: 0 auto;
+}
+
+.reveal-paragraph {
+  font-size: clamp(1.2rem, 2.2vw, 1.6rem);
+  /* Reduced slightly to fit better on screen without overflowing */
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-dark);
+  margin-bottom: 1.8rem;
+  /* Compact paragraph gaps */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.3em 0.20em;
+}
+
+.reveal-word {
+  display: block;
+  /* Flex item */
+  color: rgba(237, 241, 245, 0);
+  background-color: rgba(1, 69, 242, 0.18);
+  border-radius: 4px;
+  padding: 0.05em 0;
+  /* Dikeyde çok ufak boşluk, yatayda sıfır. Kutu metinle tam aynı hizada. */
+  margin: 0;
+  font-weight: 700;
+}
+
+.reveal-word.highlight-red,
+.reveal-word.highlight-green {
+  padding: 0.05em 0.3em; /* Vurgulu kelimelerde badge gibi görünmesi için yatay boşluk bırakır */
+  margin: 0 0.1em; /* Kutular arası aşırı yapışmayı önlemek için hafif dış boşluk */
+}

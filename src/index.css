@@ -1,0 +1,128 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Oswald:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --theme-cloud: #EDF1F5;
+  --theme-electric: #0145F2;
+  --bg-primary: #070A12;
+  --bg-secondary: #0F1728;
+  --site-bg-gradient: linear-gradient(
+    180deg,
+    #020309 0%,
+    #02050e 12%,
+    #071231 24%,
+    #030611 34%,
+    #0c1b45 48%,
+    #040915 60%,
+    #0a1a40 74%,
+    #030712 88%,
+    #020309 100%
+  );
+  --text-dark: #EDF1F5;
+  --text-body: #C8D9FF;
+  --text-muted: #86A7FF;
+  --accent-green: #0145F2;
+  --accent-green-dark: #0145F2;
+  --accent-lime: #0145F2;
+  --accent-blue: #0145F2;
+  --accent-magenta: #0145F2;
+  --accent-orange: #0145F2;
+  --accent-teal: #0145F2;
+  --accent-red: #0145F2;
+  --accent-pink: #0145F2;
+  --neon-red: #0145F2;
+  --neon-red-glow: rgba(1, 69, 242, 0.52);
+  --card-bg: rgba(15, 23, 40, 0.86);
+  --border-color: rgba(1, 69, 242, 0.35);
+  --card-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  --border-radius: 20px;
+  --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: auto;
+  overflow-x: hidden;
+}
+
+body {
+  background: #04060d;
+  color: var(--text-dark);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(75% 26% at 50% 22%, rgba(19, 54, 140, 0.28), rgba(19, 54, 140, 0) 72%),
+    radial-gradient(72% 26% at 50% 52%, rgba(16, 46, 120, 0.2), rgba(16, 46, 120, 0) 74%),
+    radial-gradient(75% 26% at 50% 80%, rgba(14, 40, 104, 0.24), rgba(14, 40, 104, 0) 72%),
+    var(--site-bg-gradient);
+  background-repeat: no-repeat;
+}
+
+.container {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  width: 100%;
+}
+
+/* Smooth custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0B1220;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(1, 69, 242, 0.65);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0145F2;
+}
+
+/* Selection */
+::selection {
+  background: var(--theme-electric);
+  color: var(--theme-cloud);
+}

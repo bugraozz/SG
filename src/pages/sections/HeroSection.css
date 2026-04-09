@@ -1,0 +1,223 @@
+.hero-section {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+  padding: 120px 0 60px;
+  overflow: visible;
+}
+
+.hero-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    linear-gradient(rgba(237, 241, 245, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(237, 241, 245, 0.06) 1px, transparent 1px);
+  background-size: 60px 60px;
+  background-position: center top;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-main-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  justify-items: center;
+  gap: 2rem;
+  min-height: calc(100vh - 120px);
+  margin-bottom: 3.5rem;
+}
+
+.hero-copy {
+  max-width: 860px;
+  text-align: center;
+}
+
+/* Badge */
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(1, 69, 242, 0.08);
+  border: 1px solid rgba(1, 69, 242, 0.2);
+  padding: 0.5rem 1.2rem;
+  border-radius: 50px;
+  margin-bottom: 2.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent-green-dark);
+}
+
+.badge-icon {
+  font-size: 1.1rem;
+}
+
+/* Title */
+.hero-title {
+  margin-bottom: 1.75rem;
+}
+
+.hero-title-line {
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  overflow: hidden;
+}
+
+.title-light {
+  font-weight: 400;
+  color: var(--text-body);
+  font-style: italic;
+}
+
+.title-bold {
+  font-weight: 900;
+  color: var(--text-dark);
+}
+
+/* Subtitle */
+.hero-subtitle {
+  font-size: 1.15rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+  max-width: 650px;
+  margin: 0 auto 2.5rem;
+}
+
+/* CTA Group */
+.hero-cta-group {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.cta-primary {
+  background: var(--accent-green);
+  color: white;
+  border: none;
+  padding: 1rem 2.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: 'Inter', sans-serif;
+}
+
+.cta-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(1, 69, 242, 0.4);
+  background: var(--accent-green-dark);
+}
+
+.cta-secondary {
+  background: transparent;
+  color: var(--theme-cloud);
+  border: 2px solid rgba(237, 241, 245, 0.65);
+  padding: 1rem 2.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: 'Inter', sans-serif;
+}
+
+.cta-secondary:hover {
+  background: rgba(1, 69, 242, 0.16);
+  color: var(--theme-cloud);
+  transform: translateY(-3px);
+}
+
+/* Scroll Indicator */
+.hero-scroll-indicator {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.scroll-line {
+  width: 2px;
+  height: 50px;
+  background: linear-gradient(to bottom, var(--text-dark), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+
+.indirim-wrapper {
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@keyframes scrollPulse {
+
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scaleY(0.5);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .hero-main-grid {
+    grid-template-columns: 1fr;
+    gap: 2.4rem;
+    min-height: calc(100vh - 140px);
+  }
+
+  .hero-copy {
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .indirim-wrapper {
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-subtitle {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-cta-group {
+    justify-content: center;
+  }
+
+}
+
+@media (max-width: 640px) {
+  .hero-main-grid {
+    min-height: auto;
+    margin-bottom: 2.5rem;
+  }
+
+  .hero-cta-group {
+    flex-direction: column;
+    align-items: center;
+  }
+}

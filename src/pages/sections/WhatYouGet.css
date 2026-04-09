@@ -1,0 +1,150 @@
+.wyg-section {
+  padding: 8rem 0;
+}
+
+.wyg-header {
+  margin-bottom: 4rem;
+}
+
+.wyg-title {
+  font-size: clamp(2.4rem, 4.5vw, 3.5rem);
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  color: var(--text-dark);
+}
+
+.wyg-subtitle {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  max-width: 550px;
+}
+
+/* List */
+.wyg-list {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  /* Removed white card wrapper entirely */
+}
+
+.wyg-item {
+  display: grid;
+  grid-template-columns: 60px 1.2fr 1fr 60px;
+  gap: 2rem;
+  align-items: center;
+  padding: 3rem 1.5rem;
+  border-bottom: 1px solid rgba(1, 69, 242, 0.3);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  position: relative;
+  background: transparent;
+}
+
+.wyg-item:first-child {
+  border-top: 1px solid rgba(1, 69, 242, 0.3);
+}
+
+.wyg-index {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: rgba(134, 167, 255, 0.4);
+  transition: all 0.4s ease;
+  font-family: inherit;
+}
+
+.wyg-item-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin-bottom: 0.8rem;
+  transition: color 0.4s ease;
+}
+
+.wyg-tags {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+
+}
+
+.wyg-tag {
+  display: inline-block;
+  background: rgba(1, 69, 242, 0.18);
+  color: var(--theme-cloud);
+  padding: 0.25rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid rgba(1, 69, 242, 0.35);
+  box-shadow: 0 4px 14px rgba(1, 69, 242, 0.14);
+}
+
+.wyg-item-desc {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  max-width: 400px;
+}
+
+.wyg-arrow {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 1px solid rgba(1, 69, 242, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-body);
+  box-shadow: 0 8px 20px rgba(1, 69, 242, 0.14);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Hover Effects! */
+.wyg-item:hover {
+  background: rgba(1, 69, 242, 0.12);
+  transform: scale(1.02);
+  box-shadow: 0 20px 40px rgba(1, 69, 242, 0.18);
+  z-index: 10;
+  border-color: rgba(1, 69, 242, 0.55);
+  border-radius: 16px;
+}
+
+/* Hide adjacent borders when hovering so they don't break the shadow box */
+.wyg-item:hover+.wyg-item {
+  border-top-color: transparent;
+}
+
+.wyg-item:hover .wyg-index {
+  color: var(--accent-green);
+  transform: scale(1.1);
+}
+
+.wyg-item:hover .wyg-arrow {
+  background: var(--accent-green);
+  color: white;
+  transform: rotate(-45deg);
+}
+
+@media (max-width: 1024px) {
+  .wyg-item {
+    grid-template-columns: 40px 1fr 50px;
+  }
+
+  .wyg-item-desc {
+    display: none;
+    /* Hide desc on tablet to keep it clean */
+  }
+}
+
+@media (max-width: 768px) {
+  .wyg-item {
+    grid-template-columns: 1fr 50px;
+    padding: 2rem 1rem;
+  }
+
+  .wyg-index {
+    display: none;
+    /* Hide index on phone */
+  }
+}

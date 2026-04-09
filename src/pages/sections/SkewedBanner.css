@@ -1,0 +1,46 @@
+.skewed-section {
+  padding: 4rem 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.skewed-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 2rem 0;
+}
+
+.skew-strip {
+  width: 120%;
+  margin-left: -10%;
+  padding: 1.2rem 0;
+  overflow: hidden;
+  will-change: transform;
+}
+
+.strip-content {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+.strip-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.strip-icon {
+  font-size: 1.8rem;
+}
+
+.strip-text {
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  font-weight: 900;
+  letter-spacing: 2px;
+  font-family: 'Inter', sans-serif;
+}

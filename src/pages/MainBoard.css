@@ -1,0 +1,53 @@
+.main-board {
+  position: relative;
+  overflow: hidden;
+  background: transparent;
+}
+
+.main-board::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 18%, rgba(1, 69, 242, 0.04), transparent 44%),
+    radial-gradient(circle at 76% 52%, rgba(1, 69, 242, 0.03), transparent 50%),
+    radial-gradient(circle at 50% 86%, rgba(1, 69, 242, 0.03), transparent 46%);
+  z-index: 0;
+}
+
+.main-board > * {
+  position: relative;
+  z-index: 1;
+}
+
+.mixed-layout-container {
+  width: 100%;
+  background-color: var(--bg-color);
+  overflow-x: hidden;
+}
+
+.vertical-section {
+  width: 100%;
+  position: relative;
+}
+
+.horizontal-pin-section {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.horizontal-slider {
+  display: flex;
+  width: 300vw; /* Sadece 3 panel yatay olacağı için 300vw (About, Tools, Articles) */
+  height: 100vh;
+}
+
+.horizontal-panel {
+  width: 100vw;
+  height: 100vh;
+  flex-shrink: 0;
+  display: flex;
+}
+

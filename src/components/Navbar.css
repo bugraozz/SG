@@ -1,0 +1,124 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  padding: 1rem 0;
+  transition: var(--transition);
+}
+
+.navbar.scrolled {
+  background: rgba(7, 10, 18, 0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(1, 69, 242, 0.34);
+  padding: 0.8rem 0;
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-text {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-dark);
+  position: relative;
+}
+
+.logo-text::after {
+  content: '.';
+  color: var(--accent-green);
+  font-size: 2.5rem;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: color 0.3s ease;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.5px;
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem 0;
+}
+
+.nav-links a::after, .nav-links button::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--accent-green);
+  transition: width 0.3s ease;
+}
+
+.nav-links a:hover::after, .nav-links button:hover::after,
+.nav-links a.active::after, .nav-links button.active::after {
+  width: 100%;
+}
+
+.nav-links a:hover, .nav-links a.active,
+.nav-links button:hover, .nav-links button.active {
+  color: var(--text-dark);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.login-btn {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-body);
+  transition: color 0.3s;
+  padding: 0.5rem 1rem;
+}
+
+.login-btn:hover {
+  color: var(--text-dark);
+}
+
+.primary-btn {
+  background-color: var(--accent-green);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.8rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border-radius: 50px;
+  transition: var(--transition);
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.3px;
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(1, 69, 242, 0.35);
+  background-color: var(--accent-green-dark);
+}
+
+/* Mobile menu */
+@media (max-width: 1024px) {
+  .nav-links {
+    display: none;
+  }
+}
