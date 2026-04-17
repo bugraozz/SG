@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import CheckoutModal from './CheckoutModal';
 import './PricingSection.css';
+import { API_URL } from '../../config';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -18,7 +19,7 @@ const PricingSection = () => {
     // Fetch packages from backend
     const fetchPackages = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/packages');
+        const res = await fetch(`\${API_URL}/api/packages`);
         const json = await res.json();
         if (json.success) {
           // backend'den gelen format { tekli: [...], coklu: [...], online: [...] } şeklinde

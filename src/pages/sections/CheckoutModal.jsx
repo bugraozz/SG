@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './CheckoutModal.css';
+import { API_URL } from '../../config';
 
 const CheckoutModal = ({ isOpen, onClose, selectedPlan }) => {
   const [formData, setFormData] = useState({
@@ -24,7 +25,7 @@ const CheckoutModal = ({ isOpen, onClose, selectedPlan }) => {
       
       /*
       // BU KOD, NODE.JS BACKENDİNİZ AKTİF OLDUĞUNDA ÇALIŞACAK ŞEKİLDE TASARLANDI:
-      const response = await fetch('http://localhost:5000/api/checkout', {
+      const response = await fetch(`\${API_URL}/api/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

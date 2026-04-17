@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import './Transformations.css';
+import { API_URL } from '../../config';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,7 +14,7 @@ const Transformations = () => {
 
   useEffect(() => {
     // 1. Backend'den fotoğrafları çek (Şimdilik örnek datalar varsa ona düşecek, yoksa boş)
-    fetch('http://localhost:5000/api/transformations')
+    fetch(`\${API_URL}/api/transformations`)
       .then(res => res.json())
       .then(data => {
         if (data.success && data.data.length > 0) {
@@ -71,7 +72,7 @@ const Transformations = () => {
 
   // Resim URL'si kontrolü (Eğer backendden geliyorsa localhost:5000 eklenir, dış linkse direkt)
   const getImageUrl = (url) => {
-    if (url && url.startsWith('/uploads/')) return `http://localhost:5000${url}`;
+    if (url && url.startsWith('/uploads/')) return `\${API_URL}${url}`;
     return url;
   };
 
