@@ -77,7 +77,7 @@ const Transformations = () => {
   };
 
   return (
-    <section className="transformations-section" id="donusumler" ref={sectionRef}>
+    <section className="transformations-section" id="donusum" ref={sectionRef}>
       <div className="container">
         
         <div className="tf-header">
