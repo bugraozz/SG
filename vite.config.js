@@ -9,4 +9,12 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  preview: {
+    allowedHosts: [
+      'compassionate-flexibility-production-b8b0.up.railway.app',
+      '*.up.railway.app',
+      'localhost',
+      '127.0.0.1',
+    ],
+  },
 })
