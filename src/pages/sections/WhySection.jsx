@@ -68,7 +68,7 @@ const WhySection = () => {
   ];
 
   return (
-    <section className="advantage-section" id="hakkimda" ref={sectionRef}>
+    <section className="advantage-section" id="avantajlar" ref={sectionRef}>
       <div className="container">
         <div className="advantage-header">
           <span className="advantage-badge">Sana Ne Kazandırır</span>

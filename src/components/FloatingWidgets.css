@@ -9,19 +9,25 @@
 }
 
 .whatsapp-btn {
-  background-color: var(--neon-red);
-  color: white;
+  background-color: var(--camo-mid);
+  background-image: var(--camo-pattern-btn);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: var(--theme-cloud);
   width: 60px;
   height: 60px;
-  border-radius: 50%;
+  border-radius: 4px;
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 4px 15px var(--neon-red-glow);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
+  border: 1px solid rgba(139, 154, 70, 0.3);
 }
 
 .whatsapp-btn:hover {
   transform: scale(1.1);
-  box-shadow: 0 6px 20px var(--neon-red-glow);
+  box-shadow: 0 6px 20px rgba(139, 154, 70, 0.3);
+  border-color: var(--camo-sand);
 }

@@ -34,10 +34,10 @@ const HeroCardsSection = () => {
   }, []);
 
   const features = [
-    { tag: 'ANTRENMAN', title: 'Kisisel Program', desc: 'Bilimsel verilere dayali, hedefe ozel antrenman programlari ile maksimum verim.', color: '#0145F2', rotation: -10 },
-    { tag: 'BESLENME', title: 'Makro Takip', desc: 'Kisisellestirilmis beslenme planlari, makro hesaplamalari ve diyet stratejileri.', color: '#0145F2', rotation: -4 },
-    { tag: 'DONUSUM', title: 'Form Takibi', desc: 'Haftalik vucut analizleri, fotograf karsilastirmalari ve ilerleme raporlari.', color: '#0145F2', rotation: 4 },
-    { tag: 'DESTEK', title: '7/24 Iletisim', desc: 'WhatsApp ile birebir kocluk destegi, motivasyon saglayan topluluk.', color: '#0145F2', rotation: 10, badge: 'Hedefine Ulas!' },
+    { tag: 'ANTRENMAN', title: 'Kisisel Program', desc: 'Bilimsel verilere dayali, hedefe ozel antrenman programlari ile maksimum verim.', color: '#2C3E1F', rotation: -10 },
+    { tag: 'BESLENME', title: 'Makro Takip', desc: 'Kisisellestirilmis beslenme planlari, makro hesaplamalari ve diyet stratejileri.', color: '#4A5D23', rotation: -4 },
+    { tag: 'DONUSUM', title: 'Form Takibi', desc: 'Haftalik vucut analizleri, fotograf karsilastirmalari ve ilerleme raporlari.', color: '#556B2F', rotation: 4 },
+    { tag: 'DESTEK', title: '7/24 Iletisim', desc: 'WhatsApp ile birebir kocluk destegi, motivasyon saglayan topluluk.', color: '#5C4033', rotation: 10, badge: 'Hedefine Ulas!' },
   ];
 
   return (

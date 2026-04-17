@@ -10,9 +10,9 @@
   inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 20% 18%, rgba(1, 69, 242, 0.04), transparent 44%),
-    radial-gradient(circle at 76% 52%, rgba(1, 69, 242, 0.03), transparent 50%),
-    radial-gradient(circle at 50% 86%, rgba(1, 69, 242, 0.03), transparent 46%);
+    radial-gradient(circle at 20% 18%, rgba(139, 154, 70, 0.03), transparent 44%),
+    radial-gradient(circle at 76% 52%, rgba(85, 107, 47, 0.02), transparent 50%),
+    radial-gradient(circle at 50% 86%, rgba(107, 142, 35, 0.02), transparent 46%);
   z-index: 0;
 }
 
@@ -50,4 +50,3 @@
   flex-shrink: 0;
   display: flex;
 }
-

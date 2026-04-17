@@ -10,14 +10,16 @@
 
 .test-badge {
   display: inline-block;
-  background: rgba(1, 69, 242, 0.1);
-  color: var(--theme-cloud);
+  background: rgba(139, 154, 70, 0.12);
+  color: var(--camo-sand);
   padding: 0.4rem 1.2rem;
-  border-radius: 50px;
-  font-size: 0.85rem;
-  font-weight: 600;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  font-weight: 700;
   margin-bottom: 1.5rem;
-  border: 1px solid rgba(1, 69, 242, 0.15);
+  border: 1px solid rgba(139, 154, 70, 0.25);
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .test-title {
@@ -40,15 +42,16 @@
 
 .testimonial-card {
   background: var(--bg-secondary);
-  border: 1px solid rgba(1, 69, 242, 0.28);
-  border-radius: var(--border-radius);
+  border: 1px solid rgba(139, 154, 70, 0.2);
+  border-radius: 8px;
   padding: 2rem;
   transition: var(--transition);
 }
 
 .testimonial-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 15px 40px rgba(1, 69, 242, 0.18);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+  border-color: rgba(139, 154, 70, 0.4);
 }
 
 .tcard-header {
@@ -61,21 +64,25 @@
 .tcard-avatar {
   width: 48px;
   height: 48px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));
+  border-radius: 4px;
+  background: linear-gradient(135deg, var(--camo-olive), var(--camo-dark));
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--camo-sand);
   font-weight: 700;
   font-size: 0.9rem;
   flex-shrink: 0;
+  border: 1px solid rgba(196, 163, 90, 0.3);
 }
 
 .tcard-name {
   font-size: 1rem;
   font-weight: 700;
   color: var(--text-dark);
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .tcard-role {
@@ -85,13 +92,15 @@
 
 .tcard-result {
   margin-left: auto;
-  background: rgba(1, 69, 242, 0.18);
-  color: var(--theme-cloud);
-  border: 1px solid rgba(1, 69, 242, 0.35);
+  background: rgba(139, 154, 70, 0.18);
+  color: var(--camo-sand);
+  border: 1px solid rgba(139, 154, 70, 0.3);
   padding: 0.3rem 0.8rem;
-  border-radius: 20px;
+  border-radius: 4px;
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .tcard-text {
@@ -102,7 +111,7 @@
 }
 
 .tcard-stars {
-  color: #0145F2;
+  color: var(--camo-sand);
   font-size: 1rem;
   letter-spacing: 2px;
 }

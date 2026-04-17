@@ -35,9 +35,9 @@
 .reveal-word {
   display: block;
   /* Flex item */
-  color: rgba(237, 241, 245, 0);
-  background-color: rgba(1, 69, 242, 0.18);
-  border-radius: 4px;
+  color: rgba(232, 228, 217, 0);
+  background-color: rgba(139, 154, 70, 0.15);
+  border-radius: 2px;
   padding: 0.05em 0;
   /* Dikeyde çok ufak boşluk, yatayda sıfır. Kutu metinle tam aynı hizada. */
   margin: 0;

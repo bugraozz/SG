@@ -10,14 +10,16 @@
 
 .why-badge {
   display: inline-block;
-  background: rgba(1, 69, 242, 0.1);
-  color: var(--theme-cloud);
+  background: rgba(139, 154, 70, 0.12);
+  color: var(--camo-sand);
   padding: 0.4rem 1.2rem;
-  border-radius: 50px;
-  font-size: 0.85rem;
-  font-weight: 600;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  font-weight: 700;
   margin-bottom: 1.5rem;
-  border: 1px solid rgba(1, 69, 242, 0.15);
+  border: 1px solid rgba(139, 154, 70, 0.25);
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .why-heading {
@@ -44,10 +46,10 @@
 
 .why-card {
   background: transparent;
-  border-radius: var(--border-radius);
+  border-radius: 8px;
   overflow: hidden;
   transition: var(--transition);
-  border: 1px solid rgba(1, 69, 242, 0.42);
+  border: 1px solid rgba(139, 154, 70, 0.3);
   position: relative;
 }
 
@@ -70,24 +72,31 @@
 
 .why-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 20px 50px rgba(1, 69, 242, 0.2);
+  box-shadow: 0 20px 50px rgba(139, 154, 70, 0.15);
 }
 
 .why-card-inner {
-  padding: 2.5rem;
   position: relative;
+  padding: 2.5rem;
+  background-color: transparent;
+  background-image: var(--camo-card-overlay);
+  background-size: 250px 250px;
+  background-position: center;
+  background-repeat: repeat;
 }
 
 .why-card-badge {
   display: inline-block;
-  background: rgba(1, 69, 242, 0.16);
-  border: 1px solid rgba(1, 69, 242, 0.35);
+  background: rgba(139, 154, 70, 0.16);
+  border: 1px solid rgba(139, 154, 70, 0.3);
   padding: 0.3rem 0.8rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
   margin-bottom: 1.5rem;
-  color: var(--text-muted);
+  color: var(--camo-sand);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
 }
 
 .why-card-num {
@@ -97,8 +106,9 @@
   font-size: 4rem;
   font-weight: 900;
   color: var(--card-accent);
-  opacity: 0.25;
+  opacity: 0.4;
   line-height: 1;
+  font-family: 'Oswald', sans-serif;
 }
 
 .why-card-title {
@@ -129,7 +139,7 @@
 }
 
 .list-arrow {
-  color: var(--card-accent);
+  color: var(--camo-sand);
   font-weight: 700;
 }
 

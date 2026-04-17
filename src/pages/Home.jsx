@@ -17,7 +17,7 @@ const Home = () => {
     const ctx = gsap.context(() => {
       // Intro Animation
       const tl = gsap.timeline();
-      
+
       tl.from(".discount-badge", {
         y: 20,
         opacity: 0,
@@ -25,31 +25,31 @@ const Home = () => {
         ease: "power3.out",
         delay: 0.2
       })
-      .from(".hero-title-line", {
-        y: 50,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.2,
-        ease: "power4.out"
-      }, "-=0.4")
-      .from(".hero-desc", {
-        y: 20,
-        opacity: 0,
-        duration: 0.6,
-        ease: "power3.out"
-      }, "-=0.4")
-      .from(".hero-actions", {
-        y: 20,
-        opacity: 0,
-        duration: 0.6,
-        ease: "power3.out"
-      }, "-=0.4")
-      .from(".hero-image", {
-        x: 100,
-        opacity: 0,
-        duration: 1,
-        ease: "power3.out"
-      }, "-=1");
+        .from(".hero-title-line", {
+          y: 50,
+          opacity: 0,
+          duration: 0.8,
+          stagger: 0.2,
+          ease: "power4.out"
+        }, "-=0.4")
+        .from(".hero-desc", {
+          y: 20,
+          opacity: 0,
+          duration: 0.6,
+          ease: "power3.out"
+        }, "-=0.4")
+        .from(".hero-actions", {
+          y: 20,
+          opacity: 0,
+          duration: 0.6,
+          ease: "power3.out"
+        }, "-=0.4")
+        .from(".hero-image", {
+          x: 100,
+          opacity: 0,
+          duration: 1,
+          ease: "power3.out"
+        }, "-=1");
 
     }, heroRef);
 
@@ -60,7 +60,7 @@ const Home = () => {
     <div className="home-wrapper">
       <section className="hero-section" ref={heroRef}>
         <div className="container hero-container">
-          
+
           <div className="hero-content" ref={textRef}>
             <div className="discount-badge">
               <div className="discount-tag">%10 İndirim</div>
@@ -91,7 +91,7 @@ const Home = () => {
           </div>
 
         </div>
-        
+
         <div className="scroll-indicator">
           <span>AŞAĞI KAYDIR</span>
           <div className="scroll-arrow"></div>

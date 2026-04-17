@@ -36,16 +36,30 @@ const HeroSection = () => {
   }, []);
 
   return (
-    <section className="hero-section" id="top" ref={heroRef}>
-      <div className="container hero-inner">
+    <section className="hero-section relative" id="top" ref={heroRef}>
+      {/* Background Image (Transparan - Yapay Zeka ile Temizlendi) */}
+      <div 
+        className="absolute inset-0 z-0 opacity-100 bg-no-repeat pointer-events-none hidden md:block"
+        style={{ 
+          backgroundImage: "url('/hero-cutout.png')",
+          backgroundPosition: "80% 100%", /* Tam sağa yapışmak yerine merkeze daha yakın (Sağdan %20 içeride) */
+          backgroundSize: "auto 105%" /* %90'dan %105'e çıkarıldı, ekran yüksekliğinden de büyük, çok daha heybetli */
+        }}
+      />
+      {/* Mobilde aynı görselin ortalanmış ve daha flu hali olabilir ya da bg olarak kullanılabilir */}
+      <div 
+        className="absolute inset-0 z-0 opacity-20 bg-no-repeat pointer-events-none md:hidden"
+        style={{ 
+          backgroundImage: "url('/hero-cutout.png')",
+          backgroundPosition: "center bottom",
+          backgroundSize: "contain"
+        }}
+      />
+        
+      <div className="container hero-inner relative z-10 w-full px-6">
 
         <div className="hero-main-grid">
           <div className="hero-copy">
-
-            <div className="indirim-wrapper" style={{ marginBottom: "2.5rem" }}>
-              <IndirimButton />
-            </div>
-
             <h1 className="hero-title">
               <div className="hero-title-line title-light">Hedef Değil,</div>
               <div className="hero-title-line title-bold">Sistem Kur.</div>
@@ -58,13 +72,9 @@ const HeroSection = () => {
             </p>
 
             <div className="hero-cta-group">
+              {/* Sadece Kamuflaj Desenli Program İnceleme Butonu Kaldı */}
               <button className="cta-primary" onClick={() => {
                 document.getElementById('paketler')?.scrollIntoView({ behavior: 'smooth' });
-              }}>
-                Hemen Başla — Sınırlı Kontenjan
-              </button>
-              <button className="cta-secondary" onClick={() => {
-                document.getElementById('hizmetler')?.scrollIntoView({ behavior: 'smooth' });
               }}>
                 Programları İncele ↓
               </button>

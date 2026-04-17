@@ -5,6 +5,7 @@
   position: relative;
   padding: 120px 0 60px;
   overflow: visible;
+  background-color: #000000;
 }
 
 .hero-section::before {
@@ -14,10 +15,29 @@
   left: 0;
   width: 100%;
   height: 100%;
+  background-image: url('/hero-bg.jpg'); /* Görsel public dizininde bu isimle yer almalı */
+  background-size: cover;
+  background-position: center 25%;
+  z-index: 0;
+  opacity: 0.25; /* Çok belirgin olmaması için şeffaf */
+  filter: grayscale(40%) contrast(1.1); /* Sinematik görünüm için hafif renksizleştirildi */
+  pointer-events: none;
+  animation: heroBgZoom 20s ease-in-out infinite alternate;
+}
+
+/* Karartma ve çizgili doku katmanı (Yazıların okunabilirliğini artırır) */
+.hero-section::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-image:
-    linear-gradient(rgba(237, 241, 245, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(237, 241, 245, 0.06) 1px, transparent 1px);
-  background-size: 60px 60px;
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 1) 100%),
+    linear-gradient(rgba(139, 154, 70, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 154, 70, 0.04) 1px, transparent 1px);
+  background-size: 100% 100%, 60px 60px, 60px 60px;
   background-position: center top;
   z-index: 0;
   pointer-events: none;
@@ -26,25 +46,25 @@
 .hero-inner {
   display: flex;
   flex-direction: column;
-  align-items: center;
   position: relative;
   z-index: 1;
+  width: 100%;
 }
 
 .hero-main-grid {
   width: 100%;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  display: flex;
   align-items: center;
-  justify-items: center;
-  gap: 2rem;
+  justify-content: flex-start;
   min-height: calc(100vh - 120px);
   margin-bottom: 3.5rem;
 }
 
 .hero-copy {
-  max-width: 860px;
-  text-align: center;
+  max-width: 650px;
+  text-align: left;
+  position: relative;
+  z-index: 10;
 }
 
 /* Badge */
@@ -52,14 +72,20 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(1, 69, 242, 0.08);
-  border: 1px solid rgba(1, 69, 242, 0.2);
+  background-color: var(--bg-secondary);
+  background-image: var(--camo-card-overlay);
+  background-size: 150px 150px;
+  background-position: center;
+  background-repeat: repeat;
+  border: 1px solid rgba(117, 109, 80, 0.4);
   padding: 0.5rem 1.2rem;
-  border-radius: 50px;
+  border-radius: 2px;
   margin-bottom: 2.5rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--accent-green-dark);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--camo-sand);
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .badge-icon {
@@ -74,7 +100,7 @@
 .hero-title-line {
   font-size: clamp(3rem, 7vw, 5.5rem);
   line-height: 1.05;
-  letter-spacing: -0.03em;
+  letter-spacing: 0.02em;
   overflow: hidden;
 }
 
@@ -94,8 +120,8 @@
   font-size: 1.15rem;
   line-height: 1.7;
   color: var(--text-muted);
-  max-width: 650px;
-  margin: 0 auto 2.5rem;
+  max-width: 600px;
+  margin: 0 0 2.5rem 0; /* Sol taraftan başlasın margin auto yok */
 }
 
 /* CTA Group */
@@ -104,45 +130,54 @@
   gap: 1rem;
   margin-bottom: 0;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start; /* Sola yaslı */
 }
 
 .cta-primary {
-  background: var(--accent-green);
-  color: white;
-  border: none;
+  background-color: var(--camo-mid);
+  background-image: var(--camo-pattern-btn);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: var(--theme-cloud);
+  border: 1px solid rgba(117, 109, 80, 0.4);
   padding: 1rem 2.5rem;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  border-radius: 50px;
+  border-radius: 4px;
   cursor: pointer;
   transition: var(--transition);
   font-family: 'Inter', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .cta-primary:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 35px rgba(1, 69, 242, 0.4);
-  background: var(--accent-green-dark);
+  box-shadow: 0 12px 35px rgba(27, 33, 23, 0.5);
+  background-color: var(--camo-olive);
 }
 
 .cta-secondary {
   background: transparent;
   color: var(--theme-cloud);
-  border: 2px solid rgba(237, 241, 245, 0.65);
+  border: 2px solid rgba(117, 109, 80, 0.6);
   padding: 1rem 2.5rem;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  border-radius: 50px;
+  border-radius: 4px;
   cursor: pointer;
   transition: var(--transition);
   font-family: 'Inter', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .cta-secondary:hover {
-  background: rgba(1, 69, 242, 0.16);
+  background-color: rgba(117, 109, 80, 0.15);
   color: var(--theme-cloud);
   transform: translateY(-3px);
+  border-color: var(--camo-sand);
 }
 
 /* Scroll Indicator */
@@ -156,7 +191,7 @@
 .scroll-line {
   width: 2px;
   height: 50px;
-  background: linear-gradient(to bottom, var(--text-dark), transparent);
+  background: linear-gradient(to bottom, var(--camo-sand), transparent);
   animation: scrollPulse 2s ease-in-out infinite;
 }
 
@@ -178,6 +213,11 @@
     opacity: 1;
     transform: scaleY(1);
   }
+}
+
+@keyframes heroBgZoom {
+  0% { transform: scale(1.0); }
+  100% { transform: scale(1.1); }
 }
 
 /* Responsive */

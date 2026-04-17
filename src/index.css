@@ -1,45 +1,51 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Oswald:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Oswald:wght@400;500;600;700&family=Black+Ops+One&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --theme-cloud: #EDF1F5;
-  --theme-electric: #0145F2;
-  --bg-primary: #070A12;
-  --bg-secondary: #0F1728;
-  --site-bg-gradient: linear-gradient(
-    180deg,
-    #020309 0%,
-    #02050e 12%,
-    #071231 24%,
-    #030611 34%,
-    #0c1b45 48%,
-    #040915 60%,
-    #0a1a40 74%,
-    #030712 88%,
-    #020309 100%
-  );
-  --text-dark: #EDF1F5;
-  --text-body: #C8D9FF;
-  --text-muted: #86A7FF;
-  --accent-green: #0145F2;
-  --accent-green-dark: #0145F2;
-  --accent-lime: #0145F2;
-  --accent-blue: #0145F2;
-  --accent-magenta: #0145F2;
-  --accent-orange: #0145F2;
-  --accent-teal: #0145F2;
-  --accent-red: #0145F2;
-  --accent-pink: #0145F2;
-  --neon-red: #0145F2;
-  --neon-red-glow: rgba(1, 69, 242, 0.52);
-  --card-bg: rgba(15, 23, 40, 0.86);
-  --border-color: rgba(1, 69, 242, 0.35);
-  --card-shadow: 0 4px 24px rgba(0,0,0,0.08);
-  --border-radius: 20px;
+  --theme-cloud: #E5E4D8;
+  --tr-camo-1: #1B2117; /* Siyahımsı yeşil */
+  --tr-camo-2: #27341F; /* Koyu yeşil */
+  --tr-camo-3: #3D4C2E; /* Orta yeşil */
+  --tr-camo-4: #5C6945; /* Açık yeşil */
+  --tr-camo-5: #756D50; /* Haki/Toprak */
+  
+  --bg-primary: #000000;
+  --bg-secondary: #111111;
+  
+  --site-bg-gradient: #000000;
+  
+  --text-dark: #E5E4D8;
+  --text-body: #9EA88B;
+  --text-muted: #6E7A5A;
+  
+  --accent-green: var(--tr-camo-4);
+  --accent-green-dark: var(--tr-camo-3);
+  --accent-red: #5C3224; /* Askeri koyu kızıl */
+  --camo-sand: var(--tr-camo-5);
+  --camo-olive: var(--tr-camo-3);
+  --camo-mid: var(--tr-camo-2);
+  --camo-dark: var(--tr-camo-1);
+
+  --card-bg: rgba(27, 33, 23, 0.85);
+  --border-color: rgba(92, 105, 69, 0.35);
+  --border-radius: 4px;
   --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+
+  --tr-camo-1-a: rgba(27, 33, 23, 0.7);
+  --tr-camo-2-a: rgba(39, 52, 31, 0.6);
+  --tr-camo-3-a: rgba(61, 76, 46, 0.5);
+  --tr-camo-4-a: rgba(92, 105, 69, 0.4);
+  --tr-camo-5-a: rgba(117, 109, 80, 0.35);
+
+  /* Tam Orijinal TSK Kamuflajı (Kullanıcının Seçtiği Asıl Görsel) */
+  --camo-pattern-btn: url('/camo.svg');
+
+  --camo-card-overlay: 
+    linear-gradient(rgba(27, 33, 23, 0.85), rgba(27, 33, 23, 0.85)),
+    url('/camo.svg');
 }
 
 * {
@@ -54,7 +60,7 @@ html {
 }
 
 body {
-  background: #04060d;
+  background: #000000;
   color: var(--text-dark);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   overflow-x: hidden;
@@ -64,10 +70,11 @@ body {
 }
 
 h1, h2, h3, h4 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Oswald', sans-serif;
   font-weight: 800;
   line-height: 1.1;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 a {
@@ -88,13 +95,11 @@ img {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background:
-    radial-gradient(75% 26% at 50% 22%, rgba(19, 54, 140, 0.28), rgba(19, 54, 140, 0) 72%),
-    radial-gradient(72% 26% at 50% 52%, rgba(16, 46, 120, 0.2), rgba(16, 46, 120, 0) 74%),
-    radial-gradient(75% 26% at 50% 80%, rgba(14, 40, 104, 0.24), rgba(14, 40, 104, 0) 72%),
-    var(--site-bg-gradient);
-  background-repeat: no-repeat;
+  background: var(--site-bg-gradient);
+  position: relative;
 }
+
+/* Camouflage SVG pattern overlay - Removed to match plain hero bg */
 
 .container {
   max-width: 1320px;
@@ -103,26 +108,26 @@ img {
   width: 100%;
 }
 
-/* Smooth custom scrollbar */
+/* Military-style scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0B1220;
+  background: #0D1206;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(1, 69, 242, 0.65);
+  background: rgba(139, 154, 70, 0.65);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #0145F2;
+  background: #8B9A46;
 }
 
 /* Selection */
 ::selection {
-  background: var(--theme-electric);
+  background: var(--camo-olive);
   color: var(--theme-cloud);
 }

@@ -2,11 +2,11 @@
   background:
     linear-gradient(
       to bottom,
-      rgba(2, 3, 9, 0.18) 0%,
-      rgba(2, 3, 9, 0.62) 38%,
-      rgba(2, 3, 9, 0.85) 100%
+      rgba(8, 12, 4, 0.18) 0%,
+      rgba(8, 12, 4, 0.62) 38%,
+      rgba(8, 12, 4, 0.92) 100%
     );
-  border-top: 1px solid rgba(1, 69, 242, 0.14);
+  border-top: 1px solid rgba(139, 154, 70, 0.15);
   color: var(--theme-cloud);
   padding: 5rem 0 2rem;
 }
@@ -22,26 +22,27 @@
   font-family: 'Oswald', sans-serif;
   font-size: 2.5rem;
   font-weight: 700;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   margin-bottom: 0.5rem;
+  text-transform: uppercase;
 }
 
 .footer-dot {
-  color: var(--theme-electric);
+  color: var(--camo-sand);
   font-size: 3rem;
 }
 
 .footer-tagline {
   font-size: 1rem;
   font-weight: 600;
-  color: rgba(237, 241, 245, 0.9);
+  color: rgba(232, 228, 217, 0.9);
   margin-bottom: 1rem;
   font-style: italic;
 }
 
 .footer-desc {
   font-size: 0.9rem;
-  color: rgba(237, 241, 245, 0.72);
+  color: rgba(232, 228, 217, 0.6);
   line-height: 1.6;
   max-width: 300px;
 }
@@ -53,12 +54,13 @@
 }
 
 .footer-col-title {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
   margin-bottom: 1.5rem;
-  color: rgba(237, 241, 245, 0.82);
+  color: var(--camo-sand);
+  font-family: 'Oswald', sans-serif;
 }
 
 .footer-col-links li {
@@ -72,7 +74,7 @@
 }
 
 .footer-col-links a:hover {
-  color: var(--theme-cloud);
+  color: var(--camo-sand);
   padding-left: 5px;
 }
 
@@ -81,7 +83,7 @@
   background: linear-gradient(
     to right,
     transparent 0%,
-    rgba(237, 241, 245, 0.72) 50%,
+    rgba(139, 154, 70, 0.4) 50%,
     transparent 100%
   );
   margin-bottom: 2rem;
@@ -95,25 +97,28 @@
 
 .footer-copyright {
   font-size: 0.85rem;
-  color: rgba(237, 241, 245, 0.72);
+  color: rgba(232, 228, 217, 0.5);
 }
 
 .back-to-top {
-  background: rgba(1, 69, 242, 0.12);
-  border: 1px solid rgba(1, 69, 242, 0.45);
+  background: rgba(139, 154, 70, 0.12);
+  border: 1px solid rgba(139, 154, 70, 0.35);
   color: var(--theme-cloud);
   padding: 0.6rem 1.2rem;
-  border-radius: 8px;
-  font-size: 0.85rem;
+  border-radius: 4px;
+  font-size: 0.82rem;
   cursor: pointer;
   transition: var(--transition);
   font-family: 'Inter', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 700;
 }
 
 .back-to-top:hover {
-  background: #0145F2;
-  border-color: #0145F2;
-  color: #EDF1F5;
+  background: var(--camo-olive);
+  border-color: var(--camo-sand);
+  color: var(--theme-cloud);
 }
 
 @media (max-width: 768px) {

@@ -1,0 +1,209 @@
+.about-section {
+  padding: 8rem 0;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--bg-primary);
+  background-image: radial-gradient(circle at right top, rgba(139, 154, 70, 0.05) 0%, transparent 40%);
+}
+
+.about-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5rem;
+  align-items: center;
+}
+
+.about-header {
+  margin-bottom: 2rem;
+}
+
+.about-badge {
+  display: inline-block;
+  background: rgba(139, 154, 70, 0.12);
+  color: var(--camo-sand);
+  padding: 0.4rem 1.2rem;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(139, 154, 70, 0.25);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.about-title {
+  font-size: clamp(2.2rem, 4vw, 3.5rem);
+  font-weight: 800;
+  color: var(--text-dark);
+  margin-bottom: 1rem;
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.about-line {
+  width: 80px;
+  height: 5px;
+  background: linear-gradient(90deg, var(--camo-sand), transparent);
+  margin-bottom: 2rem;
+  border-radius: 3px;
+}
+
+.about-text-block p {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+  margin-bottom: 1.2rem;
+}
+
+.about-text-block strong {
+  color: var(--camo-sand);
+  font-weight: 700;
+}
+
+.about-achievements {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin: 2.5rem 0;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(139, 154, 70, 0.1);
+}
+
+.achievement-item {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.achievement-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--camo-sand);
+  background: rgba(139, 154, 70, 0.1);
+  padding: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.achievement-item h4 {
+  font-size: 1.1rem;
+  color: var(--text-dark);
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+  font-family: 'Oswald', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.achievement-item span {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.about-highlight {
+  font-weight: 600;
+  color: var(--text-dark) !important;
+  border-left: 4px solid var(--camo-sand);
+  padding-left: 1.5rem;
+  font-style: italic;
+  font-size: 1.1rem;
+  margin-top: 1rem;
+  background: linear-gradient(90deg, rgba(139, 154, 70, 0.05), transparent);
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border-radius: 0 8px 8px 0;
+}
+
+.about-right {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.about-mv-box {
+  background-color: var(--bg-secondary);
+  background-image: var(--camo-card-overlay);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border: 1px solid rgba(139, 154, 70, 0.15);
+  border-radius: 16px;
+  padding: 2.5rem;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  position: relative;
+  overflow: hidden;
+}
+
+.about-mv-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.about-mv-box:hover {
+  transform: translateY(-8px) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  border-color: var(--camo-sand);
+}
+
+.mv-icon-wrapper {
+  background: rgba(139, 154, 70, 0.15);
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(139, 154, 70, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mv-icon.lucide {
+  width: 36px;
+  height: 36px;
+  color: var(--camo-sand);
+  stroke-width: 2;
+}
+
+.mv-content {
+  flex: 1;
+}
+
+.about-mv-box h3 {
+  font-size: 1.6rem;
+  font-family: 'Oswald', sans-serif;
+  color: var(--camo-sand);
+  margin-bottom: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.about-mv-box p {
+  font-size: 1.05rem;
+  color: var(--text-body);
+  line-height: 1.7;
+}
+
+@media (max-width: 992px) {
+  .about-wrapper {
+    grid-template-columns: 1fr;
+    gap: 4rem;
+  }
+  
+  .about-mv-box {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+  }
+}

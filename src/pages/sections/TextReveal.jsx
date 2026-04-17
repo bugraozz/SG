@@ -21,25 +21,24 @@ const TextReveal = () => {
         },
         {
           color: (i, el) => {
-            if (el.classList.contains('highlight-red')) return "#EDF1F5";
-            if (el.classList.contains('highlight-green')) return "#EDF1F5";
-            return "#C8D9FF";
+            if (el.classList.contains('highlight-red')) return "#E8E4D9";
+            if (el.classList.contains('highlight-green')) return "#E8E4D9";
+            return "#B8C4A2";
           },
           backgroundColor: (i, el) => {
-            if (el.classList.contains('highlight-red')) return "#0145F2";
-            if (el.classList.contains('highlight-green')) return "#0145F2";
+            if (el.classList.contains('highlight-red')) return "#556B2F";
+            if (el.classList.contains('highlight-green')) return "#6B8E23";
             return "transparent";
           },
           stagger: 0.1,
           ease: "none",
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: "top+=32 top",
-            end: "+=130%",
+            start: "center center",
+            end: "+=150%", // Increased for slower, smoother readable scrolling
             pin: true,
             scrub: 1,
             anticipatePin: 1,
-            pinReparent: true,
             invalidateOnRefresh: true,
           }
         }
