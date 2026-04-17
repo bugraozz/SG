@@ -16,7 +16,7 @@ const AdminTransformations = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch(`\${API_URL}/api/admin/login`, {
+      const res = await fetch(`${API_URL}/api/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password })
@@ -44,7 +44,7 @@ const AdminTransformations = () => {
 
   const fetchImages = async () => {
     try {
-      const res = await fetch(`\${API_URL}/api/transformations`);
+      const res = await fetch(`${API_URL}/api/transformations`);
       const data = await res.json();
       if (data.success) {
         setImages(data.data);
@@ -68,7 +68,7 @@ const AdminTransformations = () => {
 
   const fetchPackages = async () => {
     try {
-      const res = await fetch(`\${API_URL}/api/packages`);
+      const res = await fetch(`${API_URL}/api/packages`);
       const data = await res.json();
       if (data.success) {
         setPackages(data.flatData || []);
@@ -89,7 +89,7 @@ const AdminTransformations = () => {
       unavailable: pkgForm.unavailable.split(',').map(s=>s.trim()).filter(Boolean),
     };
 
-    const url = editingPkg ? `\${API_URL}/api/admin/packages/${pkgForm.id}` : `\${API_URL}/api/admin/packages`;
+    const url = editingPkg ? `${API_URL}/api/admin/packages/${pkgForm.id}` : `${API_URL}/api/admin/packages`;
     const method = editingPkg ? 'PUT' : 'POST';
 
     try {
@@ -130,7 +130,7 @@ const AdminTransformations = () => {
   const handleDeletePkg = async (id) => {
     if(!window.confirm("Bu paketi silmek istediğinize emin misiniz?")) return;
     try {
-      const res = await fetch(`\${API_URL}/api/admin/packages/${id}`, {
+      const res = await fetch(`${API_URL}/api/admin/packages/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -161,7 +161,7 @@ const AdminTransformations = () => {
     formData.append('images', file);
 
     try {
-      const res = await fetch(`\${API_URL}/api/admin/transformations`, {
+      const res = await fetch(`${API_URL}/api/admin/transformations`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -189,7 +189,7 @@ const AdminTransformations = () => {
     if (!window.confirm("Bu görseli silmek istediğinize emin misiniz?")) return;
 
     try {
-      const res = await fetch(`\${API_URL}/api/admin/transformations/${id}`, {
+      const res = await fetch(`${API_URL}/api/admin/transformations/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -287,7 +287,7 @@ const AdminTransformations = () => {
             {images.map(img => (
               <div key={img.id} className="admin-tf-card">
                 <img 
-                  src={`\${API_URL}${img.image_url}`} 
+                  src={`${API_URL}${img.image_url}`} 
                   alt="Transformation" 
                   onError={(e) => { e.target.src = img.image_url; }} 
                 />

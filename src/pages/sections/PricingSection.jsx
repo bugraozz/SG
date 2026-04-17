@@ -19,7 +19,7 @@ const PricingSection = () => {
     // Fetch packages from backend
     const fetchPackages = async () => {
       try {
-        const res = await fetch(`\${API_URL}/api/packages`);
+        const res = await fetch(`${API_URL}/api/packages`);
         const json = await res.json();
         if (json.success) {
           // backend'den gelen format { tekli: [...], coklu: [...], online: [...] } şeklinde

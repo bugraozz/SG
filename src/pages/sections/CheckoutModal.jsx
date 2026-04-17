@@ -25,7 +25,7 @@ const CheckoutModal = ({ isOpen, onClose, selectedPlan }) => {
       
       /*
       // BU KOD, NODE.JS BACKENDİNİZ AKTİF OLDUĞUNDA ÇALIŞACAK ŞEKİLDE TASARLANDI:
-      const response = await fetch(`\${API_URL}/api/checkout`, {
+      const response = await fetch(`${API_URL}/api/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
