@@ -48,11 +48,12 @@ const HeroSection = () => {
       />
       {/* Mobilde aynı görselin ortalanmış ve daha flu hali olabilir ya da bg olarak kullanılabilir */}
       <div 
-        className="absolute inset-0 z-0 opacity-20 bg-no-repeat pointer-events-none md:hidden"
+        className="absolute inset-0 z-0 bg-no-repeat pointer-events-none md:hidden"
         style={{ 
           backgroundImage: "url('/hero-cutout.png')",
-          backgroundPosition: "center bottom",
-          backgroundSize: "contain"
+          backgroundPosition: "center 82%",
+          backgroundSize: "125% auto",
+          opacity: 0.42
         }}
       />
         
