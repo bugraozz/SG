@@ -18,7 +18,7 @@ const BrandMarquee = () => {
 
       gsap.to(marqueeInner, {
         x: -totalWidth,
-        duration: 30,
+        duration: 20,
         ease: "none",
         repeat: -1,
       });
@@ -27,20 +27,34 @@ const BrandMarquee = () => {
     return () => ctx.revert();
   }, []);
 
-  const brands = [
-    "PROTEINOCEAN", "MYPROTEIN", "OPTIMUM NUTRITION", "BSN",
-    "MUSCLETECH", "CELLUCOR", "DYMATIZE", "UNIVERSAL",
-    "RULE ONE", "GHOST LIFESTYLE", "RAW NUTRITION", "GORILLA MIND"
+  const logos = [
+    { src: "/images/drsupplement-logo.webp", alt: "DR Supplement", href: "https://drsupplement.com.tr/" },
+    { src: "/images/ironathletics-logo.webp", alt: "Iron Athletics Club", href: "https://ironathleticsclub.com/" }
   ];
+
+  // Repeat logos a few times so the track is wide enough to loop properly
+  const repeatedLogos = [...logos, ...logos, ...logos, ...logos];
 
   return (
     <section className="marquee-section" ref={marqueeRef}>
+
       <div className="marquee-container">
         <div className="marquee-track">
-          {brands.map((brand, i) => (
-            <div key={i} className="marquee-item">
-              <span className="marquee-brand">{brand}</span>
-            </div>
+          {repeatedLogos.map((logo, i) => (
+            <a
+              href={logo.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              key={i}
+              className="marquee-item"
+            >
+              <img
+                src={logo.src}
+                alt={logo.alt}
+                className="sponsor-logo"
+                loading="lazy"
+              />
+            </a>
           ))}
         </div>
       </div>

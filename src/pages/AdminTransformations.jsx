@@ -39,6 +39,8 @@ const AdminTransformations = () => {
     setToken(null);
     localStorage.removeItem('adminToken');
     setImages([]);
+    setPackages([]);
+    setPkgBgFile(null);
     setMessage('');
   };
 
@@ -65,6 +67,13 @@ const AdminTransformations = () => {
   const [packages, setPackages] = useState([]);
   const [pkgForm, setPkgForm] = useState({ category: 'online', name: '', badge: '', price: '', period: '', description: '', features: '', unavailable: '', color: 'var(--camo-mid)', btnClass: 'pricing-btn', order_index: 0 });
   const [editingPkg, setEditingPkg] = useState(false);
+  const [pkgBgFile, setPkgBgFile] = useState(null);
+
+  const resolveMediaUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('/uploads/')) return `${API_URL}${url}`;
+    return url;
+  };
 
   const fetchPackages = async () => {
     try {
@@ -82,12 +91,24 @@ const AdminTransformations = () => {
     e.preventDefault();
     setLoading(true);
     
-    // Parse comma separated strings into arrays
-    const payload = {
-      ...pkgForm,
-      features: pkgForm.features.split(',').map(s=>s.trim()).filter(Boolean),
-      unavailable: pkgForm.unavailable.split(',').map(s=>s.trim()).filter(Boolean),
-    };
+    const parsedFeatures = pkgForm.features.split(',').map(s => s.trim()).filter(Boolean);
+    const parsedUnavailable = pkgForm.unavailable.split(',').map(s => s.trim()).filter(Boolean);
+
+    const formData = new FormData();
+    formData.append('category', pkgForm.category);
+    formData.append('name', pkgForm.name);
+    formData.append('badge', pkgForm.badge || '');
+    formData.append('price', pkgForm.price);
+    formData.append('period', pkgForm.period);
+    formData.append('description', pkgForm.description);
+    formData.append('features', JSON.stringify(parsedFeatures));
+    formData.append('unavailable', JSON.stringify(parsedUnavailable));
+    formData.append('color', pkgForm.color || 'var(--camo-mid)');
+    formData.append('btnClass', pkgForm.btnClass || 'pricing-btn');
+    formData.append('order_index', String(pkgForm.order_index || 0));
+    if (pkgBgFile) {
+      formData.append('backgroundImage', pkgBgFile);
+    }
 
     const url = editingPkg ? `${API_URL}/api/admin/packages/${pkgForm.id}` : `${API_URL}/api/admin/packages`;
     const method = editingPkg ? 'PUT' : 'POST';
@@ -96,10 +117,9 @@ const AdminTransformations = () => {
       const res = await fetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(payload)
+        body: formData
       });
       const data = await res.json();
       if(data.success) {
@@ -119,6 +139,7 @@ const AdminTransformations = () => {
 
   const handleEditPkg = (pkg) => {
     setEditingPkg(true);
+    setPkgBgFile(null);
     setPkgForm({
       ...pkg,
       features: (pkg.features || []).join(', '),
@@ -145,7 +166,13 @@ const AdminTransformations = () => {
 
   const handleCancelPkg = () => {
     setEditingPkg(false);
+    setPkgBgFile(null);
     setPkgForm({ category: 'online', name: '', badge: '', price: '', period: '', description: '', features: '', unavailable: '', color: 'var(--camo-mid)', btnClass: 'pricing-btn', order_index: 0 });
+  };
+
+  const handlePkgBackgroundChange = (e) => {
+    const selected = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+    setPkgBgFile(selected);
   };
 
   const handleFileChange = (e) => {
@@ -207,6 +234,13 @@ const AdminTransformations = () => {
       console.error(err);
       alert("Silme sırasında hata oluştu.");
     }
+  };
+
+  const categoryLabels = {
+    tekli: 'Tekli Gelişim',
+    coklu: 'Çoklu Gelişim',
+    online: 'Online Koçluk',
+    msu: 'MSÜ Spor Mülakatı'
   };
 
   if (!token) {
@@ -315,6 +349,7 @@ const AdminTransformations = () => {
                 <option value="tekli">Tekli Gelişim</option>
                 <option value="coklu">Çoklu Gelişim</option>
                 <option value="online">Online Koçluk</option>
+                <option value="msu">MSÜ Spor Mülakatı</option>
               </select>
             </div>
             <div>
@@ -355,6 +390,26 @@ const AdminTransformations = () => {
               <textarea value={pkgForm.unavailable} onChange={e=>setPkgForm({...pkgForm, unavailable: e.target.value})} rows="2" style={{width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px'}}></textarea>
             </div>
 
+            <div style={{ gridColumn: '1 / -1' }}>
+              <label style={{display: 'block', marginBottom: '5px', fontSize: '0.9rem'}}>Paket Arkaplan Görseli (Opsiyonel)</label>
+              <input type="file" accept="image/*" onChange={handlePkgBackgroundChange} style={{width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px'}} />
+              {pkgBgFile && (
+                <p style={{ marginTop: '8px', fontSize: '0.82rem', color: '#cfcfcf' }}>
+                  Secilen dosya: {pkgBgFile.name}
+                </p>
+              )}
+              {!pkgBgFile && editingPkg && pkgForm.background_image_url && (
+                <div style={{ marginTop: '10px' }}>
+                  <p style={{ marginBottom: '6px', fontSize: '0.82rem', color: '#cfcfcf' }}>Mevcut arkaplan:</p>
+                  <img
+                    src={resolveMediaUrl(pkgForm.background_image_url)}
+                    alt="Paket arkaplan"
+                    style={{ width: '100%', maxWidth: '280px', height: '120px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #2f2f2f' }}
+                  />
+                </div>
+              )}
+            </div>
+
             <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '10px', marginTop: '10px' }}>
               <button type="submit" disabled={loading} className="admin-tf-btn" style={{ flex: 1, padding: '15px' }}>
                 {loading ? 'İşleniyor...' : (editingPkg ? 'Güncelle' : 'Kaydet')}
@@ -369,7 +424,7 @@ const AdminTransformations = () => {
 
           {/* Paket Listesi Tablosu */}
           <div style={{ marginTop: '40px', overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '820px' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid #333' }}>
                   <th style={{ padding: '12px' }}>Kategori</th>
@@ -377,17 +432,29 @@ const AdminTransformations = () => {
                   <th style={{ padding: '12px' }}>İsim</th>
                   <th style={{ padding: '12px' }}>Rozet</th>
                   <th style={{ padding: '12px' }}>Fiyat</th>
+                  <th style={{ padding: '12px' }}>Arkaplan</th>
                   <th style={{ padding: '12px' }}>İşlemler</th>
                 </tr>
               </thead>
               <tbody>
                 {packages.map(pkg => (
                   <tr key={pkg.id} style={{ borderBottom: '1px solid #222' }}>
-                    <td style={{ padding: '12px', textTransform: 'capitalize' }}>{pkg.category}</td>
+                    <td style={{ padding: '12px' }}>{categoryLabels[pkg.category] || pkg.category}</td>
                     <td style={{ padding: '12px' }}>{pkg.order_index}</td>
                     <td style={{ padding: '12px', fontWeight: 'bold' }}>{pkg.name}</td>
                     <td style={{ padding: '12px' }}>{pkg.badge && <span style={{ background: '#ca0d1c', padding: '3px 8px', borderRadius: '12px', fontSize: '0.8rem' }}>{pkg.badge}</span>}</td>
                     <td style={{ padding: '12px' }}>{pkg.price} {pkg.period}</td>
+                    <td style={{ padding: '12px' }}>
+                      {pkg.background_image_url ? (
+                        <img
+                          src={resolveMediaUrl(pkg.background_image_url)}
+                          alt="Paket arkaplan"
+                          style={{ width: '80px', height: '50px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #2f2f2f' }}
+                        />
+                      ) : (
+                        <span style={{ color: '#777' }}>Yok</span>
+                      )}
+                    </td>
                     <td style={{ padding: '12px', display: 'flex', gap: '10px' }}>
                       <button onClick={() => handleEditPkg(pkg)} style={{ background: 'var(--camo-olive)', color: 'white', padding: '6px 12px', borderRadius: '4px', border: 'none', cursor: 'pointer' }}>Düzenle</button>
                       <button onClick={() => handleDeletePkg(pkg.id)} style={{ background: 'transparent', border: '1px solid #ff4444', color: '#ff4444', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer' }}>Sil</button>

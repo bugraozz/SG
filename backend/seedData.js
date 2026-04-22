@@ -3,6 +3,12 @@ const { v4: uuidv4 } = require('uuid');
 
 const db = new Database('./orders.db');
 
+// Eski veritabanlari icin kolon uyumlulugu
+const packageColumns = db.prepare('PRAGMA table_info(packages)').all().map((col) => col.name);
+if (!packageColumns.includes('background_image_url')) {
+  db.prepare('ALTER TABLE packages ADD COLUMN background_image_url TEXT').run();
+}
+
 // Önceki paketleri temizle
 db.exec('DELETE FROM packages');
 
@@ -171,6 +177,59 @@ const defaultPackages = [
     color: 'var(--camo-sand)', 
     btnClass: 'pricing-btn elite-btn', 
     order_index: 3 
+  },
+
+  // ================= MSU =================
+  {
+    category: 'msu',
+    name: '1 Ay',
+    badge: null,
+    price: '1000₺',
+    period: '/paket',
+    desc: 'MSÜ spor mülakatı parkuruna odaklı temel hazırlık programı.',
+    features: JSON.stringify([
+      'Parkur teknikleri ve süre yönetimi',
+      'Kuvvet ve dayanıklılık antrenmanları',
+      'Haftalık ilerleme takibi'
+    ]),
+    unavailable: JSON.stringify([]),
+    color: '#b8862f',
+    btnClass: 'pricing-btn',
+    order_index: 0
+  },
+  {
+    category: 'msu',
+    name: '2 Ay',
+    badge: null,
+    price: '2000₺',
+    period: '/paket',
+    desc: 'MSÜ parkur performansını istikrarlı şekilde yükselten orta seviye plan.',
+    features: JSON.stringify([
+      'Parkur süre geliştirme protokolleri',
+      'Tempolu kondisyon ve hız çalışmaları',
+      'Düzenli performans analizi'
+    ]),
+    unavailable: JSON.stringify([]),
+    color: '#c6963d',
+    btnClass: 'pricing-btn',
+    order_index: 1
+  },
+  {
+    category: 'msu',
+    name: '3 Ay',
+    badge: 'MSÜ Özel Paket',
+    price: '3000₺',
+    period: '/paket',
+    desc: 'Sınav gününe yönelik tam kapsamlı MSÜ spor mülakatı hazırlık paketi.',
+    features: JSON.stringify([
+      'Kişisel parkur stratejisi',
+      'Hız, çeviklik ve dayanıklılık döngüsü',
+      'Deneme simülasyonları ve geri bildirim'
+    ]),
+    unavailable: JSON.stringify([]),
+    color: '#d0a040',
+    btnClass: 'pricing-btn premium-btn',
+    order_index: 2
   }
 ];
 

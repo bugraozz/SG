@@ -12,7 +12,7 @@ const PricingSection = () => {
   const [activeTab, setActiveTab] = useState('online');
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [allPlans, setAllPlans] = useState({ tekli: [], coklu: [], online: [] });
+  const [allPlans, setAllPlans] = useState({ tekli: [], coklu: [], online: [], msu: [] });
   const [loadingPackages, setLoadingPackages] = useState(true);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ const PricingSection = () => {
         const json = await res.json();
         if (json.success) {
           // backend'den gelen format { tekli: [...], coklu: [...], online: [...] } şeklinde
-          setAllPlans(json.data);
+          setAllPlans({ tekli: [], coklu: [], online: [], msu: [], ...(json.data || {}) });
         }
       } catch (err) {
         console.error("Paketler yüklenemedi", err);
@@ -85,6 +85,12 @@ const PricingSection = () => {
     setIsModalOpen(true);
   };
 
+  const resolvePackageImageUrl = (url) => {
+    if (!url) return null;
+    if (url.startsWith('/uploads/')) return `${API_URL}${url}`;
+    return url;
+  };
+
   const currentPlans = allPlans[activeTab] || [];
 
   return (
@@ -105,6 +111,12 @@ const PricingSection = () => {
         </div>
 
         <div className="pricing-tabs">
+          <button 
+            className={`pricing-tab-btn ${activeTab === 'msu' ? 'active' : ''}`}
+            onClick={() => setActiveTab('msu')}
+          >
+            MSÜ Spor Mülakatı
+          </button>
           <button 
             className={`pricing-tab-btn ${activeTab === 'online' ? 'active' : ''}`}
             onClick={() => setActiveTab('online')}
@@ -127,8 +139,21 @@ const PricingSection = () => {
 
         <div className={`pricing-grid ${activeTab === 'online' ? 'grid-4' : ''}`}>
           {currentPlans.map((plan, i) => {
+            const backgroundImageUrl = resolvePackageImageUrl(plan.background_image_url);
+            const cardStyle = {
+              '--plan-color': plan.color,
+              ...(backgroundImageUrl
+                ? {
+                    backgroundImage: `linear-gradient(160deg, rgba(8, 12, 4, 0.68), rgba(8, 12, 4, 0.82)), url(${backgroundImageUrl})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                  }
+                : {})
+            };
+
             const cardContent = (
-              <div key={i} className={`pricing-card ${plan.badge ? 'featured-card' : ''}`} style={{ '--plan-color': plan.color }}>
+              <div key={i} className={`pricing-card ${plan.badge ? 'featured-card' : ''} ${backgroundImageUrl ? 'has-custom-bg' : ''}`} style={cardStyle}>
                 {plan.badge && (
                   <div className="pricing-popular-badge">{plan.badge}</div>
                 )}

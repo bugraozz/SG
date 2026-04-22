@@ -50,9 +50,16 @@ db.exec(`
     unavailable TEXT,
     color TEXT,
     btnClass TEXT,
-    order_index INTEGER DEFAULT 0
+    order_index INTEGER DEFAULT 0,
+    background_image_url TEXT
   );
 `);
+
+// Eski veritabanlari icin packages tablosuna eksik kolon eklenir.
+const packageColumns = db.prepare('PRAGMA table_info(packages)').all().map(col => col.name);
+if (!packageColumns.includes('background_image_url')) {
+  db.prepare('ALTER TABLE packages ADD COLUMN background_image_url TEXT').run();
+}
 
 // Başlangıç için varsayılan paketler yoksa DB'ye tohumlama (seed) yap.
 const packageCount = db.prepare('SELECT COUNT(*) as count FROM packages').get();
@@ -67,6 +74,90 @@ if (packageCount.count === 0) {
     insertPkg.run(uuidv4(), p.category, p.name, p.badge, p.price, p.period, p.desc, p.features, p.unavailable, p.color, p.btnClass, p.order_index);
   });
 }
+
+const msuDefaults = [
+  {
+    category: 'msu',
+    name: '1 Ay',
+    badge: '',
+    price: '1000₺',
+    period: '/paket',
+    desc: 'MSÜ spor mülakatı parkuruna odaklı temel hazırlık programı.',
+    features: JSON.stringify([
+      'Parkur teknikleri ve süre yönetimi',
+      'Kuvvet ve dayanıklılık antrenmanları',
+      'Haftalık ilerleme takibi'
+    ]),
+    unavailable: JSON.stringify([]),
+    color: '#b8862f',
+    btnClass: 'pricing-btn',
+    order_index: 1,
+    background_image_url: null
+  },
+  {
+    category: 'msu',
+    name: '2 Ay',
+    badge: '',
+    price: '2000₺',
+    period: '/paket',
+    desc: 'MSÜ parkur performansını istikrarlı şekilde yükselten orta seviye plan.',
+    features: JSON.stringify([
+      'Parkur süre geliştirme protokolleri',
+      'Tempolu kondisyon ve hız çalışmaları',
+      'Düzenli performans analizi'
+    ]),
+    unavailable: JSON.stringify([]),
+    color: '#c6963d',
+    btnClass: 'pricing-btn',
+    order_index: 2,
+    background_image_url: null
+  },
+  {
+    category: 'msu',
+    name: '3 Ay',
+    badge: 'MSÜ Özel Paket',
+    price: '3000₺',
+    period: '/paket',
+    desc: 'Sınav gününe yönelik tam kapsamlı MSÜ spor mülakatı hazırlık paketi.',
+    features: JSON.stringify([
+      'Kişisel parkur stratejisi',
+      'Hız, çeviklik ve dayanıklılık döngüsü',
+      'Deneme simülasyonları ve geri bildirim'
+    ]),
+    unavailable: JSON.stringify([]),
+    color: '#d0a040',
+    btnClass: 'pricing-btn premium-btn',
+    order_index: 3,
+    background_image_url: null
+  }
+];
+
+const findMsuPackageStmt = db.prepare('SELECT id FROM packages WHERE category = ? AND name = ? LIMIT 1');
+const insertMsuPackageStmt = db.prepare(`
+  INSERT INTO packages (id, category, name, badge, price, period, description, features, unavailable, color, btnClass, order_index, background_image_url)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`);
+
+msuDefaults.forEach((pkg) => {
+  const exists = findMsuPackageStmt.get(pkg.category, pkg.name);
+  if (!exists) {
+    insertMsuPackageStmt.run(
+      uuidv4(),
+      pkg.category,
+      pkg.name,
+      pkg.badge,
+      pkg.price,
+      pkg.period,
+      pkg.desc,
+      pkg.features,
+      pkg.unavailable,
+      pkg.color,
+      pkg.btnClass,
+      pkg.order_index,
+      pkg.background_image_url
+    );
+  }
+});
 
 const app = express();
 
@@ -268,6 +359,40 @@ const verifyAdmin = (req, res, next) => {
   }
 };
 
+const resolveUploadFilePath = (relativePath) => {
+  if (!relativePath || typeof relativePath !== 'string') return null;
+  return path.join(__dirname, relativePath.replace(/^\/+/, ''));
+};
+
+const deleteUploadedFile = (relativePath) => {
+  const fullPath = resolveUploadFilePath(relativePath);
+  if (fullPath && fs.existsSync(fullPath)) {
+    fs.unlinkSync(fullPath);
+  }
+};
+
+const parseArrayField = (value) => {
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item).trim()).filter(Boolean);
+  }
+
+  if (typeof value !== 'string') return [];
+
+  const trimmed = value.trim();
+  if (!trimmed) return [];
+
+  try {
+    const parsed = JSON.parse(trimmed);
+    if (Array.isArray(parsed)) {
+      return parsed.map((item) => String(item).trim()).filter(Boolean);
+    }
+  } catch (e) {
+    // JSON degilse virgul ayrimli metin gibi ele alinir.
+  }
+
+  return trimmed.split(',').map((item) => item.trim()).filter(Boolean);
+};
+
 // Admin tarafı için Dönüşüm Ekleme (Resim yükleme)
 // Güvenlik için JWT Auth eklendi
 app.post('/api/admin/transformations', verifyAdmin, upload.single('images'), (req, res) => {
@@ -294,11 +419,8 @@ app.delete('/api/admin/transformations/:id', verifyAdmin, (req, res) => {
     // Resmi bul
     const row = db.prepare('SELECT image_url FROM transformations WHERE id = ?').get(id);
     if(row) {
-        // Dosyayı sunucudan fiziksel olarak sil
-        const fullPath = path.join(__dirname, row.image_url);
-        if(fs.existsSync(fullPath)) {
-            fs.unlinkSync(fullPath);
-        }
+      // Dosyayi sunucudan fiziksel olarak sil
+      deleteUploadedFile(row.image_url);
     }
     // DB'den sil
     db.prepare('DELETE FROM transformations WHERE id = ?').run(id);
@@ -328,6 +450,7 @@ app.get('/api/packages', (req, res) => {
       tekli: parsedPackages.filter(p => p.category === 'tekli'),
       coklu: parsedPackages.filter(p => p.category === 'coklu'),
       online: parsedPackages.filter(p => p.category === 'online'),
+      msu: parsedPackages.filter(p => p.category === 'msu'),
     };
     
     res.json({ success: true, data: grouped, flatData: parsedPackages });
@@ -337,41 +460,111 @@ app.get('/api/packages', (req, res) => {
 });
 
 // Paket Ekle
-app.post('/api/admin/packages', verifyAdmin, (req, res) => {
+app.post('/api/admin/packages', verifyAdmin, upload.single('backgroundImage'), (req, res) => {
   const { category, name, badge, price, period, description, features, unavailable, color, btnClass, order_index } = req.body;
+  const parsedFeatures = parseArrayField(features);
+  const parsedUnavailable = parseArrayField(unavailable);
+  const orderIndex = Number.isFinite(Number(order_index)) ? Number(order_index) : 0;
+  const backgroundImagePath = req.file ? '/uploads/' + req.file.filename : null;
+
   try {
-    const insertStmt = db.prepare('INSERT INTO packages (id, category, name, badge, price, period, description, features, unavailable, color, btnClass, order_index) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    const insertStmt = db.prepare(`
+      INSERT INTO packages (id, category, name, badge, price, period, description, features, unavailable, color, btnClass, order_index, background_image_url)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
     const newId = uuidv4();
     insertStmt.run(
-      newId, category, name, badge || null, price, period, description, 
-      JSON.stringify(features || []), JSON.stringify(unavailable || []), 
-      color || 'var(--camo-mid)', btnClass || 'pricing-btn', order_index || 0
+      newId,
+      category,
+      name,
+      badge || null,
+      price,
+      period,
+      description,
+      JSON.stringify(parsedFeatures),
+      JSON.stringify(parsedUnavailable),
+      color || 'var(--camo-mid)',
+      btnClass || 'pricing-btn',
+      orderIndex,
+      backgroundImagePath
     );
     res.json({ success: true, message: 'Paket eklendi', id: newId });
   } catch(e) {
+    if (backgroundImagePath) {
+      deleteUploadedFile(backgroundImagePath);
+    }
     res.status(500).json({ success: false, error: 'Veritabanı hatası' });
   }
 });
 
 // Paket Güncelle
-app.put('/api/admin/packages/:id', verifyAdmin, (req, res) => {
+app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage'), (req, res) => {
   const { id } = req.params;
-  const { category, name, badge, price, period, description, features, unavailable, color, btnClass, order_index } = req.body;
+  const { category, name, badge, price, period, description, features, unavailable, color, btnClass, order_index, removeBackground } = req.body;
+  const parsedFeatures = parseArrayField(features);
+  const parsedUnavailable = parseArrayField(unavailable);
+  const orderIndex = Number.isFinite(Number(order_index)) ? Number(order_index) : 0;
   
   try {
+    const existingPackage = db.prepare('SELECT background_image_url FROM packages WHERE id = ?').get(id);
+    if (!existingPackage) {
+      if (req.file) {
+        deleteUploadedFile('/uploads/' + req.file.filename);
+      }
+      return res.status(404).json({ success: false, error: 'Paket bulunamadı' });
+    }
+
+    const previousBackgroundPath = existingPackage.background_image_url || null;
+    let backgroundImagePath = previousBackgroundPath;
+    let shouldDeletePreviousBackground = false;
+
+    if (req.file) {
+      backgroundImagePath = '/uploads/' + req.file.filename;
+      shouldDeletePreviousBackground = Boolean(previousBackgroundPath);
+    }
+
+    const shouldRemoveBackground = removeBackground === true || removeBackground === 'true';
+    if (shouldRemoveBackground && !req.file) {
+      backgroundImagePath = null;
+      shouldDeletePreviousBackground = Boolean(previousBackgroundPath);
+    }
+
     const updateStmt = db.prepare(`
-      UPDATE packages 
-      SET category=?, name=?, badge=?, price=?, period=?, description=?, features=?, unavailable=?, color=?, btnClass=?, order_index=?
+      UPDATE packages
+      SET category=?, name=?, badge=?, price=?, period=?, description=?, features=?, unavailable=?, color=?, btnClass=?, order_index=?, background_image_url=?
       WHERE id=?
     `);
     const info = updateStmt.run(
-      category, name, badge || null, price, period, description, 
-      JSON.stringify(features || []), JSON.stringify(unavailable || []), 
-      color, btnClass, order_index || 0, id
+      category,
+      name,
+      badge || null,
+      price,
+      period,
+      description,
+      JSON.stringify(parsedFeatures),
+      JSON.stringify(parsedUnavailable),
+      color || 'var(--camo-mid)',
+      btnClass || 'pricing-btn',
+      orderIndex,
+      backgroundImagePath,
+      id
     );
-    if(info.changes > 0) res.json({ success: true, message: 'Paket güncellendi' });
-    else res.status(404).json({ success: false, error: 'Paket bulunamadı' });
+
+    if (info.changes > 0) {
+      if (shouldDeletePreviousBackground && previousBackgroundPath && previousBackgroundPath !== backgroundImagePath) {
+        deleteUploadedFile(previousBackgroundPath);
+      }
+      res.json({ success: true, message: 'Paket güncellendi' });
+    } else {
+      if (req.file) {
+        deleteUploadedFile(backgroundImagePath);
+      }
+      res.status(404).json({ success: false, error: 'Paket bulunamadı' });
+    }
   } catch(e) {
+    if (req.file) {
+      deleteUploadedFile('/uploads/' + req.file.filename);
+    }
     res.status(500).json({ success: false, error: 'Güncelleme hatası' });
   }
 });
@@ -380,6 +573,15 @@ app.put('/api/admin/packages/:id', verifyAdmin, (req, res) => {
 app.delete('/api/admin/packages/:id', verifyAdmin, (req, res) => {
   const { id } = req.params;
   try {
+    const existingPackage = db.prepare('SELECT background_image_url FROM packages WHERE id = ?').get(id);
+    if (!existingPackage) {
+      return res.status(404).json({ success: false, error: 'Paket bulunamadı' });
+    }
+
+    if (existingPackage.background_image_url) {
+      deleteUploadedFile(existingPackage.background_image_url);
+    }
+
     db.prepare('DELETE FROM packages WHERE id = ?').run(id);
     res.json({ success: true, message: 'Paket silindi' });
   } catch(e) {

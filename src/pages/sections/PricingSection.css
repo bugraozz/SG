@@ -110,6 +110,20 @@
   position: relative;
 }
 
+.pricing-card.has-custom-bg {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.pricing-card.has-custom-bg .plan-name,
+.pricing-card.has-custom-bg .plan-price,
+.pricing-card.has-custom-bg .plan-period,
+.pricing-card.has-custom-bg .plan-desc,
+.pricing-card.has-custom-bg .plan-feature {
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+}
+
 .pricing-card:hover {
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
 }
