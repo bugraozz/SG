@@ -1,7 +1,24 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { API_URL } from '../../config';
 import './FooterSection.css';
 
 const FooterSection = () => {
+  const [settings, setSettings] = useState({});
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/settings`);
+        const data = await res.json();
+        if (data.success) {
+          setSettings(data.data || {});
+        }
+      } catch (err) {
+        console.error("Footer ayarları çekilemedi:", err);
+      }
+    };
+    fetchSettings();
+  }, []);
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -43,10 +60,22 @@ const FooterSection = () => {
             <div className="footer-col">
               <h4 className="footer-col-title">Sosyal Medya</h4>
               <ul className="footer-col-links">
-                <li><a href="#" target="_blank" rel="noopener noreferrer">Instagram</a></li>
-                <li><a href="#" target="_blank" rel="noopener noreferrer">YouTube</a></li>
-                <li><a href="#" target="_blank" rel="noopener noreferrer">TikTok</a></li>
-                <li><a href="#" target="_blank" rel="noopener noreferrer">Twitter / X</a></li>
+                {settings.social_instagram && (
+                  <li><a href={settings.social_instagram} target="_blank" rel="noopener noreferrer">Instagram</a></li>
+                )}
+                {settings.social_youtube && (
+                  <li><a href={settings.social_youtube} target="_blank" rel="noopener noreferrer">YouTube</a></li>
+                )}
+                {settings.social_tiktok && (
+                  <li><a href={settings.social_tiktok} target="_blank" rel="noopener noreferrer">TikTok</a></li>
+                )}
+                {settings.social_twitter && (
+                  <li><a href={settings.social_twitter} target="_blank" rel="noopener noreferrer">Twitter / X</a></li>
+                )}
+                {/* Eğer hiç link girilmemişse varsayılan bir bilgi gösterebiliriz ya da boş kalabilir */}
+                {!settings.social_instagram && !settings.social_youtube && !settings.social_tiktok && !settings.social_twitter && (
+                  <li><span style={{color: '#888', fontSize: '0.9rem'}}>Bağlantılar yakında</span></li>
+                )}
               </ul>
             </div>
           </div>

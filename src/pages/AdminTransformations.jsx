@@ -60,14 +60,59 @@ const AdminTransformations = () => {
     if (token) {
       fetchImages();
       fetchPackages();
+      fetchSettings();
     }
   }, [token]);
 
-  const [activeTab, setActiveTab] = useState('transformations'); // 'transformations' veya 'packages'
+  const [activeTab, setActiveTab] = useState('transformations'); // 'transformations', 'packages', 'settings'
   const [packages, setPackages] = useState([]);
   const [pkgForm, setPkgForm] = useState({ category: 'online', name: '', badge: '', price: '', period: '', description: '', features: '', unavailable: '', color: 'var(--camo-mid)', btnClass: 'pricing-btn', order_index: 0 });
   const [editingPkg, setEditingPkg] = useState(false);
   const [pkgBgFile, setPkgBgFile] = useState(null);
+  
+  const [settings, setSettings] = useState({
+    social_instagram: '',
+    social_youtube: '',
+    social_tiktok: '',
+    social_twitter: ''
+  });
+
+  const fetchSettings = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/settings`);
+      const data = await res.json();
+      if (data.success) {
+        setSettings(data.data || {});
+      }
+    } catch(err) {
+      console.error(err);
+    }
+  };
+
+  const handleSettingsSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/api/admin/settings`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(settings)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setMessage('Ayarlar başarıyla güncellendi!');
+      } else {
+        if(res.status === 401 || res.status === 403) handleLogout();
+        setMessage('Hata: ' + data.error);
+      }
+    } catch(err) {
+      setMessage('Bağlantı hatası.');
+    }
+    setLoading(false);
+  };
 
   const resolveMediaUrl = (url) => {
     if (!url) return '';
@@ -304,6 +349,9 @@ const AdminTransformations = () => {
         <button onClick={() => setActiveTab('packages')} className="admin-tf-btn" style={{ background: activeTab === 'packages' ? 'var(--camo-sand)' : 'transparent', color: activeTab === 'packages' ? 'black' : 'white', border: '1px solid var(--camo-sand)' }}>
           Paket Yönetimi
         </button>
+        <button onClick={() => setActiveTab('settings')} className="admin-tf-btn" style={{ background: activeTab === 'settings' ? 'var(--camo-sand)' : 'transparent', color: activeTab === 'settings' ? 'black' : 'white', border: '1px solid var(--camo-sand)' }}>
+          Genel Ayarlar
+        </button>
       </div>
       
       {message && <p className="admin-tf-msg">{message}</p>}
@@ -465,6 +513,36 @@ const AdminTransformations = () => {
             </table>
             {packages.length === 0 && <p style={{ textAlign: 'center', margin: '20px', color: '#666' }}>Henüz paket eklenmemiş.</p>}
           </div>
+        </div>
+      )}
+      {activeTab === 'settings' && (
+        <div className="tab-content fade-in">
+          <form onSubmit={handleSettingsSubmit} className="admin-tf-form" style={{ background: '#111', padding: '20px', borderRadius: '10px', display: 'grid', gridTemplateColumns: '1fr', gap: '15px' }}>
+            <h3 style={{ color: 'var(--camo-sand)', marginBottom: '10px' }}>Sosyal Medya Linkleri</h3>
+            
+            <div>
+              <label style={{display: 'block', marginBottom: '5px', fontSize: '0.9rem'}}>Instagram URL</label>
+              <input type="text" value={settings.social_instagram || ''} onChange={e=>setSettings({...settings, social_instagram: e.target.value})} style={{width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px'}} placeholder="https://instagram.com/..." />
+            </div>
+            <div>
+              <label style={{display: 'block', marginBottom: '5px', fontSize: '0.9rem'}}>YouTube URL</label>
+              <input type="text" value={settings.social_youtube || ''} onChange={e=>setSettings({...settings, social_youtube: e.target.value})} style={{width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px'}} placeholder="https://youtube.com/..." />
+            </div>
+            <div>
+              <label style={{display: 'block', marginBottom: '5px', fontSize: '0.9rem'}}>TikTok URL</label>
+              <input type="text" value={settings.social_tiktok || ''} onChange={e=>setSettings({...settings, social_tiktok: e.target.value})} style={{width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px'}} placeholder="https://tiktok.com/..." />
+            </div>
+            <div>
+              <label style={{display: 'block', marginBottom: '5px', fontSize: '0.9rem'}}>Twitter / X URL</label>
+              <input type="text" value={settings.social_twitter || ''} onChange={e=>setSettings({...settings, social_twitter: e.target.value})} style={{width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px'}} placeholder="https://twitter.com/..." />
+            </div>
+
+            <div style={{ marginTop: '10px' }}>
+              <button type="submit" disabled={loading} className="admin-tf-btn" style={{ width: '100%', padding: '15px' }}>
+                {loading ? 'İşleniyor...' : 'Ayarları Kaydet'}
+              </button>
+            </div>
+          </form>
         </div>
       )}
     </div>

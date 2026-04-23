@@ -62,9 +62,9 @@ const HeroSection = () => {
         <div className="hero-main-grid">
           <div className="hero-copy">
             <h1 className="hero-title">
-              <div className="hero-title-line title-light">Hedef Değil,</div>
-              <div className="hero-title-line title-bold">Sistem Kur.</div>
-              <div className="hero-title-line title-bold">Sonuç Al.</div>
+              <div className="hero-title-line title-accent">Ruh Harbiyeli,</div>
+              <div className="hero-title-line title-accent">Fizik Harbiyeli<span className="hero-dot">.</span></div>
+              <div className="hero-title-line title-bold title-highlight">Ya Sen<span className="hero-question">?</span></div>
             </h1>
 
             <p className="hero-subtitle">

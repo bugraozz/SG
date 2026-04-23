@@ -1,4 +1,4 @@
-﻿require('dotenv').config();
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const crypto = require('crypto');
@@ -53,6 +53,11 @@ db.exec(`
     order_index INTEGER DEFAULT 0,
     background_image_url TEXT
   );
+
+  CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    value TEXT
+  );
 `);
 
 // Eski veritabanlari icin packages tablosuna eksik kolon eklenir.
@@ -73,6 +78,19 @@ if (packageCount.count === 0) {
   defaultPackages.forEach(p => {
     insertPkg.run(uuidv4(), p.category, p.name, p.badge, p.price, p.period, p.desc, p.features, p.unavailable, p.color, p.btnClass, p.order_index);
   });
+}
+
+// Varsayılan ayarları ekle
+const settingsCount = db.prepare('SELECT COUNT(*) as count FROM settings').get();
+if (settingsCount.count === 0) {
+  const defaultSettings = [
+    { key: 'social_instagram', value: '' },
+    { key: 'social_youtube', value: '' },
+    { key: 'social_tiktok', value: '' },
+    { key: 'social_twitter', value: '' },
+  ];
+  const insertSetting = db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)');
+  defaultSettings.forEach(s => insertSetting.run(s.key, s.value));
 }
 
 const msuDefaults = [
@@ -586,6 +604,38 @@ app.delete('/api/admin/packages/:id', verifyAdmin, (req, res) => {
     res.json({ success: true, message: 'Paket silindi' });
   } catch(e) {
     res.status(500).json({ success: false, error: 'Paket silinemedi' });
+  }
+});
+
+// ==========================================
+// AYARLAR (SETTINGS) BÖLÜMÜ (API)
+// ==========================================
+
+// Ayarları Getir (Public)
+app.get('/api/settings', (req, res) => {
+  try {
+    const settings = db.prepare('SELECT * FROM settings').all();
+    const settingsObj = {};
+    settings.forEach(s => { settingsObj[s.key] = s.value; });
+    res.json({ success: true, data: settingsObj });
+  } catch(e) {
+    res.status(500).json({ success: false, error: 'Sorgu hatası' });
+  }
+});
+
+// Ayarları Güncelle
+app.put('/api/admin/settings', verifyAdmin, (req, res) => {
+  const settingsObj = req.body; 
+  try {
+    const updateStmt = db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value');
+    db.transaction(() => {
+      for (const [key, value] of Object.entries(settingsObj)) {
+        updateStmt.run(key, value || '');
+      }
+    })();
+    res.json({ success: true, message: 'Ayarlar güncellendi' });
+  } catch(e) {
+    res.status(500).json({ success: false, error: 'Güncelleme hatası' });
   }
 });
 
