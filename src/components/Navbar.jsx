@@ -63,6 +63,11 @@ const Navbar = () => {
                 </g>
               </svg>
             </span>
+            <div className="logo-text">
+              <span className="logo-text-top">SERHAT</span>
+              <span className="logo-text-mid">GÜNDAR</span>
+              <span className="logo-text-bot">COACHING</span>
+            </div>
           </button>
         </div>
         
@@ -80,28 +85,28 @@ const Navbar = () => {
             href="https://drsupplement.com.tr/"
             target="_blank"
             rel="noreferrer"
-            className="bg-red-950 text-red-400 border border-red-400 border-b-4 font-medium overflow-hidden relative px-3 py-2 rounded-xl hover:brightness-150 hover:border-t-4 hover:border-b active:opacity-75 outline-none duration-300 group flex items-center gap-3 cursor-pointer no-underline"
+            className="bg-red-950 text-red-400 border border-red-400 border-b-2 md:border-b-4 font-medium overflow-hidden relative px-1.5 md:px-3 py-1 md:py-2 rounded-lg md:rounded-xl hover:brightness-150 hover:border-t-2 md:hover:border-t-4 hover:border-b active:opacity-75 outline-none duration-300 group flex items-center gap-1.5 md:gap-3 cursor-pointer no-underline"
           >
             <span className="bg-red-400 shadow-red-400 absolute -top-[150%] left-0 inline-flex w-[300px] h-[5px] rounded-md opacity-50 group-hover:top-[150%] duration-500 shadow-[0_0_10px_10px_rgba(0,0,0,0.3)]"></span>
             
             {/* Sol - İndirim Kutusu */}
-            <div className="bg-red-600 text-white font-extrabold text-[13px] md:text-sm px-3 md:px-4 py-1.5 md:py-2 rounded-lg whitespace-nowrap shadow-[0_4px_15px_rgba(220,38,38,0.4)] z-10 relative">
+            <div className="bg-red-600 text-white font-extrabold text-[10px] md:text-sm px-2 md:px-4 py-1 md:py-2 rounded-md md:rounded-lg whitespace-nowrap shadow-[0_4px_15px_rgba(220,38,38,0.4)] z-10 relative">
               %10 İndirim
             </div>
             
             {/* Orta - Yazı Katmanı */}
-            <div className="flex flex-col items-start leading-tight justify-center space-y-1.5 z-10 relative">
-              <span className="text-[10px] md:text-[11px] text-red-200 font-medium tracking-wide">
+            <div className="flex flex-col items-start leading-tight justify-center space-y-0.5 md:space-y-1.5 z-10 relative">
+              <span className="text-[8px] md:text-[11px] text-red-200 font-medium tracking-wide">
                 drsupplement'de
               </span>
-              <span className="text-[12px] md:text-[13px] font-black text-red-950 bg-red-400 px-1.5 py-0.5 rounded-sm inline-flex uppercase">
+              <span className="text-[9px] md:text-[13px] font-black text-red-950 bg-red-400 px-1 md:px-1.5 py-0.5 rounded-sm inline-flex uppercase">
                 TEGMEN10
               </span>
             </div>
             
             {/* Sağ - İkon */}
-            <div className="text-red-400 group-hover:text-red-100 group-hover:translate-x-1 transition-all ml-1 pr-1 z-10 relative">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <div className="text-red-400 group-hover:text-red-100 group-hover:translate-x-1 transition-all ml-0.5 md:ml-1 pr-0.5 md:pr-1 z-10 relative hidden sm:block">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
             </div>

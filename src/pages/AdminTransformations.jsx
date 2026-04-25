@@ -69,6 +69,7 @@ const AdminTransformations = () => {
   const [pkgForm, setPkgForm] = useState({ category: 'online', name: '', badge: '', price: '', period: '', description: '', features: '', unavailable: '', color: 'var(--camo-mid)', btnClass: 'pricing-btn', order_index: 0 });
   const [editingPkg, setEditingPkg] = useState(false);
   const [pkgBgFile, setPkgBgFile] = useState(null);
+  const [removeBg, setRemoveBg] = useState(false);
   
   const [settings, setSettings] = useState({
     social_instagram: '',
@@ -151,6 +152,7 @@ const AdminTransformations = () => {
     formData.append('color', pkgForm.color || 'var(--camo-mid)');
     formData.append('btnClass', pkgForm.btnClass || 'pricing-btn');
     formData.append('order_index', String(pkgForm.order_index || 0));
+    formData.append('removeBackground', removeBg);
     if (pkgBgFile) {
       formData.append('backgroundImage', pkgBgFile);
     }
@@ -185,6 +187,7 @@ const AdminTransformations = () => {
   const handleEditPkg = (pkg) => {
     setEditingPkg(true);
     setPkgBgFile(null);
+    setRemoveBg(false);
     setPkgForm({
       ...pkg,
       features: (pkg.features || []).join(', '),
@@ -212,12 +215,14 @@ const AdminTransformations = () => {
   const handleCancelPkg = () => {
     setEditingPkg(false);
     setPkgBgFile(null);
+    setRemoveBg(false);
     setPkgForm({ category: 'online', name: '', badge: '', price: '', period: '', description: '', features: '', unavailable: '', color: 'var(--camo-mid)', btnClass: 'pricing-btn', order_index: 0 });
   };
 
   const handlePkgBackgroundChange = (e) => {
     const selected = e.target.files && e.target.files[0] ? e.target.files[0] : null;
     setPkgBgFile(selected);
+    if (selected) setRemoveBg(false);
   };
 
   const handleFileChange = (e) => {
@@ -446,15 +451,23 @@ const AdminTransformations = () => {
                   Secilen dosya: {pkgBgFile.name}
                 </p>
               )}
-              {!pkgBgFile && editingPkg && pkgForm.background_image_url && (
+              {!pkgBgFile && editingPkg && pkgForm.background_image_url && !removeBg && (
                 <div style={{ marginTop: '10px' }}>
                   <p style={{ marginBottom: '6px', fontSize: '0.82rem', color: '#cfcfcf' }}>Mevcut arkaplan:</p>
-                  <img
-                    src={resolveMediaUrl(pkgForm.background_image_url)}
-                    alt="Paket arkaplan"
-                    style={{ width: '100%', maxWidth: '280px', height: '120px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #2f2f2f' }}
-                  />
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '15px' }}>
+                    <img
+                      src={resolveMediaUrl(pkgForm.background_image_url)}
+                      alt="Paket arkaplan"
+                      style={{ width: '100%', maxWidth: '280px', height: '120px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #2f2f2f' }}
+                    />
+                    <button type="button" onClick={() => setRemoveBg(true)} style={{ background: 'transparent', border: '1px solid #ff4444', color: '#ff4444', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.85rem' }}>
+                      Görseli Kaldır
+                    </button>
+                  </div>
                 </div>
+              )}
+              {!pkgBgFile && editingPkg && pkgForm.background_image_url && removeBg && (
+                <p style={{ marginTop: '8px', fontSize: '0.85rem', color: '#ff4444' }}>Mevcut görsel silinecek.</p>
               )}
             </div>
 

@@ -27,6 +27,37 @@
   align-items: center;
   justify-content: center;
   padding: 0;
+  gap: 0.5rem;
+  text-align: left;
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.logo-text-top {
+  font-size: 0.8rem;
+  color: var(--theme-cloud, #f8fafc);
+  letter-spacing: 1.5px;
+}
+
+.logo-text-mid {
+  font-size: 0.8rem;
+  color: var(--camo-sand, #d4b46a);
+  letter-spacing: 1.5px;
+}
+
+.logo-text-bot {
+  font-size: 0.8rem;
+  color: var(--text-muted, #94a3b8);
+  letter-spacing: 1.5px;
 }
 
 .logo-mark {
@@ -60,7 +91,7 @@
 }
 
 .logo button:focus-visible {
-  border-radius: 999px;
+  border-radius: 8px;
   outline: 2px solid rgba(232, 208, 136, 0.45);
   outline-offset: 3px;
 }
@@ -69,6 +100,8 @@
   display: flex;
   gap: 2rem;
   align-items: center;
+  margin-left: auto;
+  margin-right: 2.5rem;
 }
 
 .nav-links a,

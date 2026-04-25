@@ -36,9 +36,10 @@ const PricingSection = () => {
 
   useEffect(() => {
     let ctx = gsap.context(() => {
-      gsap.fromTo(".pricing-header > *", 
+      gsap.fromTo(".pricing-header > *",
         { y: 40, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1, ease: "expo.out", stagger: 0.15,
+        {
+          y: 0, opacity: 1, duration: 1, ease: "expo.out", stagger: 0.15,
           scrollTrigger: { trigger: sectionRef.current, start: "top 75%", toggleActions: "play none none none", once: true }
         }
       );
@@ -49,7 +50,7 @@ const PricingSection = () => {
   // Update card animations whenever tab changes
   useEffect(() => {
     let ctx = gsap.context(() => {
-      gsap.fromTo(".pricing-card", 
+      gsap.fromTo(".pricing-card",
         { y: 60, opacity: 0, scale: 0.95 },
         { y: 0, opacity: 1, scale: 1, duration: 1.2, ease: "expo.out", stagger: 0.15 }
       );
@@ -96,11 +97,11 @@ const PricingSection = () => {
   return (
     <section className="pricing-section" id="paketler" ref={sectionRef}>
       <div className="container">
-      <CheckoutModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        selectedPlan={selectedPlan} 
-      />
+        <CheckoutModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          selectedPlan={selectedPlan}
+        />
         <div className="pricing-header">
           <span className="pricing-badge">Fiyatlandırma</span>
           <h2 className="pricing-title">Sana Uygun Planı Seç</h2>
@@ -111,25 +112,25 @@ const PricingSection = () => {
         </div>
 
         <div className="pricing-tabs">
-          <button 
+          <button
             className={`pricing-tab-btn ${activeTab === 'msu' ? 'active' : ''}`}
             onClick={() => setActiveTab('msu')}
           >
             MSÜ Spor Mülakatı
           </button>
-          <button 
+          <button
             className={`pricing-tab-btn ${activeTab === 'online' ? 'active' : ''}`}
             onClick={() => setActiveTab('online')}
           >
             Online Koçluk
           </button>
-          <button 
+          <button
             className={`pricing-tab-btn ${activeTab === 'coklu' ? 'active' : ''}`}
             onClick={() => setActiveTab('coklu')}
           >
             Çoklu Gelişim
           </button>
-          <button 
+          <button
             className={`pricing-tab-btn ${activeTab === 'tekli' ? 'active' : ''}`}
             onClick={() => setActiveTab('tekli')}
           >
@@ -144,11 +145,11 @@ const PricingSection = () => {
               '--plan-color': plan.color,
               ...(backgroundImageUrl
                 ? {
-                    backgroundImage: `linear-gradient(160deg, rgba(8, 12, 4, 0.68), rgba(8, 12, 4, 0.82)), url(${backgroundImageUrl})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                  }
+                  backgroundImage: `linear-gradient(160deg, rgba(8, 12, 4, 0.35), rgba(8, 12, 4, 0.75)), url(${backgroundImageUrl})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat',
+                }
                 : {})
             };
 

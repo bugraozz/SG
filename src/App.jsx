@@ -4,6 +4,8 @@ import MainBoard from './pages/MainBoard';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import AdminTransformations from './pages/AdminTransformations';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfUse from './pages/TermsOfUse';
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/admin" element={<AdminTransformations />} />
+          <Route path="/gizlilik-politikasi" element={<PrivacyPolicy />} />
+          <Route path="/kullanim-kosullari" element={<TermsOfUse />} />
         </Routes>
       </main>
     </div>
