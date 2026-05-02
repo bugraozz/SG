@@ -1,15 +1,37 @@
-import React, { useLayoutEffect, useRef } from 'react';
+import React, { useLayoutEffect, useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import SplitType from 'split-type';
 import './Panels.css';
+import { API_URL } from '../config';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const Packages = () => {
   const sectionRef = useRef(null);
+  const [packages, setPackages] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/packages`);
+        const data = await res.json();
+        if (data.success) {
+          setPackages(data.flatData || []);
+        }
+      } catch (err) {
+        console.error("Paketler yüklenirken hata oluştu:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPackages();
+  }, []);
 
   useLayoutEffect(() => {
+    if (loading) return;
+    
     let ctx = gsap.context(() => {
       const titles = new SplitType('.panel-title', { types: 'lines, words' });
       gsap.set(titles.lines, { overflow: 'hidden' });
@@ -36,7 +58,13 @@ const Packages = () => {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [loading, packages]);
+
+  const handleCheckout = (pkg) => {
+    // Burada satın alma sayfasına veya modalına yönlendirebiliriz
+    // Şimdilik ödeme elementinin href değerini tetikleyebiliriz
+    window.location.hash = '#contact'; // ya da #odeme
+  };
 
   return (
     <section className="panel-section packages-panel" id="paketler" ref={sectionRef}>
@@ -46,46 +74,34 @@ const Packages = () => {
           <div className="panel-line"></div>
         </div>
 
-        <div className="packages-grid">
-          <div className="package-card">
-            <h3 className="pkg-title">Standart</h3>
-            <p className="pkg-desc">Kişiye özel antrenman programı.</p>
-            <div className="pkg-price">1500₺ <span className="period">/ay</span></div>
-            <ul className="pkg-features">
-              <li>Özel Antrenman Programı</li>
-              <li>Aylık İlerleme Takibi</li>
-              <li>Soru-Cevap Desteği (Haftalık)</li>
-            </ul>
-            <button className="pkg-btn">Seç</button>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '50px', color: '#666' }}>Yükleniyor...</div>
+        ) : (
+          <div className="packages-grid">
+            {packages.map((pkg) => {
+              const isPremium = pkg.btnClass && pkg.btnClass.includes('premium-btn');
+              return (
+                <div key={pkg.id} className={`package-card ${isPremium ? 'premium-card' : ''}`}>
+                  {pkg.badge && <div className="popular-badge">{pkg.badge}</div>}
+                  <h3 className="pkg-title">{pkg.name}</h3>
+                  <p className="pkg-desc">{pkg.description}</p>
+                  <div className="pkg-price">{pkg.price} <span className="period">{pkg.period}</span></div>
+                  <ul className="pkg-features">
+                    {pkg.features && pkg.features.map((feature, idx) => (
+                      <li key={idx}>{feature}</li>
+                    ))}
+                    {pkg.unavailable && pkg.unavailable.map((unav, idx) => (
+                      <li key={`unav-${idx}`} className="unavailable">{unav}</li>
+                    ))}
+                  </ul>
+                  <button className={`pkg-btn ${isPremium ? 'active-btn' : ''}`} onClick={() => handleCheckout(pkg)}>
+                    Seç
+                  </button>
+                </div>
+              );
+            })}
           </div>
-
-          <div className="package-card premium-card">
-            <div className="popular-badge">En Çok Tercih Edilen</div>
-            <h3 className="pkg-title">Premium</h3>
-            <p className="pkg-desc">Detaylı beslenme ve antrenman.</p>
-            <div className="pkg-price">2500₺ <span className="period">/ay</span></div>
-            <ul className="pkg-features">
-              <li>Özel Antrenman Programı</li>
-              <li>Kişiselleştirilmiş Diyet</li>
-              <li>7/24 WhatsApp Desteği</li>
-              <li>Haftalık Form Kontrolü</li>
-            </ul>
-            <button className="pkg-btn active-btn">Seç</button>
-          </div>
-
-          <div className="package-card">
-            <h3 className="pkg-title">Elite</h3>
-            <p className="pkg-desc">Tam kapsamlı birebir danışmanlık.</p>
-            <div className="pkg-price">4000₺ <span className="period">/ay</span></div>
-            <ul className="pkg-features">
-              <li>Tüm Premium Özellikleri</li>
-              <li>Günlük Etkileşim</li>
-              <li>Video Form Analizi</li>
-              <li>Özel Takviye Rehberi</li>
-            </ul>
-            <button className="pkg-btn">Seç</button>
-          </div>
-        </div>
+        )}
       </div>
     </section>
   );

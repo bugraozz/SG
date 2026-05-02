@@ -65,6 +65,9 @@ const packageColumns = db.prepare('PRAGMA table_info(packages)').all().map(col =
 if (!packageColumns.includes('background_image_url')) {
   db.prepare('ALTER TABLE packages ADD COLUMN background_image_url TEXT').run();
 }
+if (!packageColumns.includes('shopier_id')) {
+  db.prepare('ALTER TABLE packages ADD COLUMN shopier_id TEXT').run();
+}
 
 // Başlangıç için varsayılan paketler yoksa DB'ye tohumlama (seed) yap.
 const packageCount = db.prepare('SELECT COUNT(*) as count FROM packages').get();
@@ -213,6 +216,8 @@ const SHOPIER_API_KEY = process.env.SHOPIER_API_KEY || 'API_KEY';
 const SHOPIER_API_SECRET = process.env.SHOPIER_API_SECRET || 'API_SECRET';
 const SHOPIER_WEBSITE_INDEX = process.env.SHOPIER_WEBSITE_INDEX || '1';
 const RETURN_URL = process.env.RETURN_URL || 'http://localhost:5173/payment-success'; 
+// Kullanıcının mevcut PAT (Personal Access Token) anahtarını Bearer olarak kullanacağız
+const SHOPIER_APP_TOKEN = process.env.SHOPIER_APP_TOKEN || process.env.SHOPIER_API_KEY;
 
 // Admin Paneli Güvenliği
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Serhat123!';
@@ -478,17 +483,50 @@ app.get('/api/packages', (req, res) => {
 });
 
 // Paket Ekle
-app.post('/api/admin/packages', verifyAdmin, upload.single('backgroundImage'), (req, res) => {
+app.post('/api/admin/packages', verifyAdmin, upload.single('backgroundImage'), async (req, res) => {
   const { category, name, badge, price, period, description, features, unavailable, color, btnClass, order_index } = req.body;
   const parsedFeatures = parseArrayField(features);
   const parsedUnavailable = parseArrayField(unavailable);
   const orderIndex = Number.isFinite(Number(order_index)) ? Number(order_index) : 0;
   const backgroundImagePath = req.file ? '/uploads/' + req.file.filename : null;
 
+  let shopierId = null;
+
   try {
+    // Shopier API (Personal Access Token) ile ürünü Shopier mağazasında yarat
+    if (SHOPIER_APP_TOKEN && SHOPIER_APP_TOKEN !== 'API_KEY') {
+      try {
+        const numericPrice = parseFloat(price.replace(/[^0-9,.]/g, '').replace(/\./g, '').replace(',', '.'));
+        const shopierRes = await fetch('https://api.shopier.com/v1/products', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${SHOPIER_APP_TOKEN}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            title: name,
+            description: description || name,
+            price: { price: numericPrice || 1, currency: 'TRY' },
+            type: 'digital',
+            stockQuantity: 9999,
+            shippingPayer: 'sellerPays',
+            placementScore: 100
+          })
+        });
+        const shopierData = await shopierRes.json();
+        if (shopierData && shopierData.id) {
+          shopierId = shopierData.id;
+        } else {
+          console.error("Shopier Create Warning:", shopierData);
+        }
+      } catch (err) {
+        console.error("Shopier API Error during Create:", err);
+      }
+    }
+
     const insertStmt = db.prepare(`
-      INSERT INTO packages (id, category, name, badge, price, period, description, features, unavailable, color, btnClass, order_index, background_image_url)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO packages (id, category, name, badge, price, period, description, features, unavailable, color, btnClass, order_index, background_image_url, shopier_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     const newId = uuidv4();
     insertStmt.run(
@@ -504,10 +542,12 @@ app.post('/api/admin/packages', verifyAdmin, upload.single('backgroundImage'), (
       color || 'var(--camo-mid)',
       btnClass || 'pricing-btn',
       orderIndex,
-      backgroundImagePath
+      backgroundImagePath,
+      shopierId
     );
     res.json({ success: true, message: 'Paket eklendi', id: newId });
   } catch(e) {
+    console.error(e);
     if (backgroundImagePath) {
       deleteUploadedFile(backgroundImagePath);
     }
@@ -516,7 +556,7 @@ app.post('/api/admin/packages', verifyAdmin, upload.single('backgroundImage'), (
 });
 
 // Paket Güncelle
-app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage'), (req, res) => {
+app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage'), async (req, res) => {
   const { id } = req.params;
   const { category, name, badge, price, period, description, features, unavailable, color, btnClass, order_index, removeBackground } = req.body;
   const parsedFeatures = parseArrayField(features);
@@ -524,7 +564,7 @@ app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage')
   const orderIndex = Number.isFinite(Number(order_index)) ? Number(order_index) : 0;
   
   try {
-    const existingPackage = db.prepare('SELECT background_image_url FROM packages WHERE id = ?').get(id);
+    const existingPackage = db.prepare('SELECT background_image_url, shopier_id FROM packages WHERE id = ?').get(id);
     if (!existingPackage) {
       if (req.file) {
         deleteUploadedFile('/uploads/' + req.file.filename);
@@ -545,6 +585,34 @@ app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage')
     if (shouldRemoveBackground && !req.file) {
       backgroundImagePath = null;
       shouldDeletePreviousBackground = Boolean(previousBackgroundPath);
+    }
+
+    // Shopier API (Personal Access Token) ile ürünü güncelle
+    if (existingPackage.shopier_id && SHOPIER_APP_TOKEN && SHOPIER_APP_TOKEN !== 'API_KEY') {
+      try {
+        const numericPrice = parseFloat(price.replace(/[^0-9,.]/g, '').replace(/\./g, '').replace(',', '.'));
+        const shopierRes = await fetch(`https://api.shopier.com/v1/products/${existingPackage.shopier_id}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${SHOPIER_APP_TOKEN}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            title: name,
+            description: description || name,
+            price: { price: numericPrice || 1, currency: 'TRY' },
+            type: 'digital',
+            stockQuantity: 9999,
+            shippingPayer: 'sellerPays'
+          })
+        });
+        const shopierData = await shopierRes.json();
+        if (!shopierData || !shopierData.id) {
+           console.error("Shopier Update Warning:", shopierData);
+        }
+      } catch (err) {
+        console.error("Shopier API Error during Update:", err);
+      }
     }
 
     const updateStmt = db.prepare(`
@@ -580,6 +648,7 @@ app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage')
       res.status(404).json({ success: false, error: 'Paket bulunamadı' });
     }
   } catch(e) {
+    console.error(e);
     if (req.file) {
       deleteUploadedFile('/uploads/' + req.file.filename);
     }
@@ -588,16 +657,30 @@ app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage')
 });
 
 // Paket Sil
-app.delete('/api/admin/packages/:id', verifyAdmin, (req, res) => {
+app.delete('/api/admin/packages/:id', verifyAdmin, async (req, res) => {
   const { id } = req.params;
   try {
-    const existingPackage = db.prepare('SELECT background_image_url FROM packages WHERE id = ?').get(id);
+    const existingPackage = db.prepare('SELECT background_image_url, shopier_id FROM packages WHERE id = ?').get(id);
     if (!existingPackage) {
       return res.status(404).json({ success: false, error: 'Paket bulunamadı' });
     }
 
     if (existingPackage.background_image_url) {
       deleteUploadedFile(existingPackage.background_image_url);
+    }
+
+    // Shopier API (Personal Access Token) ile ürünü Shopier'den de sil
+    if (existingPackage.shopier_id && SHOPIER_APP_TOKEN && SHOPIER_APP_TOKEN !== 'API_KEY') {
+      try {
+        await fetch(`https://api.shopier.com/v1/products/${existingPackage.shopier_id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${SHOPIER_APP_TOKEN}`
+          }
+        });
+      } catch (err) {
+        console.error("Shopier API Error during Delete:", err);
+      }
     }
 
     db.prepare('DELETE FROM packages WHERE id = ?').run(id);
