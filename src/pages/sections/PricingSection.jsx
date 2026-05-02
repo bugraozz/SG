@@ -82,8 +82,13 @@ const PricingSection = () => {
   }, [activeTab, allPlans]);
 
   const handlePlanSelect = (plan) => {
-    setSelectedPlan(plan);
-    setIsModalOpen(true);
+    if (plan.shopier_id) {
+      // Shopier ürün sayfasına yönlendir (Yeni sekmede açar)
+      window.open(`https://www.shopier.com/${plan.shopier_id}`, '_blank');
+    } else {
+      // Shopier bağlantısı yoksa hiçbir şey yapma (Veya bir uyarı verilebilir)
+      console.log("Bu paketin Shopier bağlantısı henüz tanımlanmamış.");
+    }
   };
 
   const resolvePackageImageUrl = (url) => {

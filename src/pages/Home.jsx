@@ -81,7 +81,9 @@ const Home = () => {
             </p>
 
             <div className="hero-actions">
-              <button className="primary-btn hero-btn">HEMEN BAŞLA</button>
+              <button className="primary-btn hero-btn" onClick={() => document.getElementById('paketler')?.scrollIntoView({ behavior: 'smooth' })}>
+                HEMEN BAŞLA
+              </button>
             </div>
           </div>
 

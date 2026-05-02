@@ -6,8 +6,15 @@ const AdminTransformations = () => {
   const [images, setImages] = useState([]);
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  
+  const [notif, setNotif] = useState({ show: false, type: 'success', text: '' });
+
+  const showNotif = (text, type = 'success') => {
+    setNotif({ show: true, type, text });
+    setTimeout(() => {
+      setNotif(prev => ({ ...prev, show: false }));
+    }, 4000);
+  };
+
   // Auth State
   const [token, setToken] = useState(localStorage.getItem('adminToken') || null);
   const [password, setPassword] = useState('');
@@ -25,12 +32,12 @@ const AdminTransformations = () => {
       if (data.success) {
         setToken(data.token);
         localStorage.setItem('adminToken', data.token);
-        setMessage('');
+        showNotif('Giriş başarılı. Sisteme erişim sağlandı.');
       } else {
-        setMessage('Giriş Başarısız: ' + data.error);
+        showNotif('Giriş Başarısız: ' + data.error, 'error');
       }
     } catch (err) {
-      setMessage('Bağlantı hatası.');
+      showNotif('Bağlantı hatası.', 'error');
     }
     setLoading(false);
   };
@@ -41,7 +48,7 @@ const AdminTransformations = () => {
     setImages([]);
     setPackages([]);
     setPkgBgFile(null);
-    setMessage('');
+    showNotif('Oturum kapatıldı.');
   };
 
   const fetchImages = async () => {
@@ -66,11 +73,11 @@ const AdminTransformations = () => {
 
   const [activeTab, setActiveTab] = useState('transformations'); // 'transformations', 'packages', 'settings'
   const [packages, setPackages] = useState([]);
-  const [pkgForm, setPkgForm] = useState({ category: 'online', name: '', badge: '', price: '', period: '', description: '', features: '', unavailable: '', color: 'var(--camo-mid)', btnClass: 'pricing-btn', order_index: 0 });
+  const [pkgForm, setPkgForm] = useState({ category: 'online', name: '', badge: '', price: '', period: '', description: '', features: '', unavailable: '', color: 'var(--camo-mid)', btnClass: 'pricing-btn', order_index: 0, stock: 999 });
   const [editingPkg, setEditingPkg] = useState(false);
   const [pkgBgFile, setPkgBgFile] = useState(null);
   const [removeBg, setRemoveBg] = useState(false);
-  
+
   const [settings, setSettings] = useState({
     social_instagram: '',
     social_youtube: '',
@@ -85,7 +92,7 @@ const AdminTransformations = () => {
       if (data.success) {
         setSettings(data.data || {});
       }
-    } catch(err) {
+    } catch (err) {
       console.error(err);
     }
   };
@@ -104,13 +111,13 @@ const AdminTransformations = () => {
       });
       const data = await res.json();
       if (data.success) {
-        setMessage('Ayarlar başarıyla güncellendi!');
+        showNotif('Ayarlar başarıyla güncellendi!');
       } else {
-        if(res.status === 401 || res.status === 403) handleLogout();
-        setMessage('Hata: ' + data.error);
+        if (res.status === 401 || res.status === 403) handleLogout();
+        showNotif('Hata: ' + data.error, 'error');
       }
-    } catch(err) {
-      setMessage('Bağlantı hatası.');
+    } catch (err) {
+      showNotif('Bağlantı hatası.', 'error');
     }
     setLoading(false);
   };
@@ -128,7 +135,7 @@ const AdminTransformations = () => {
       if (data.success) {
         setPackages(data.flatData || []);
       }
-    } catch(err) {
+    } catch (err) {
       console.error(err);
     }
   };
@@ -136,7 +143,7 @@ const AdminTransformations = () => {
   const handlePkgSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
+
     const parsedFeatures = pkgForm.features.split(',').map(s => s.trim()).filter(Boolean);
     const parsedUnavailable = pkgForm.unavailable.split(',').map(s => s.trim()).filter(Boolean);
 
@@ -144,7 +151,15 @@ const AdminTransformations = () => {
     formData.append('category', pkgForm.category);
     formData.append('name', pkgForm.name);
     formData.append('badge', pkgForm.badge || '');
-    formData.append('price', pkgForm.price);
+    
+    // Fiyatı formatla: Sadece rakam varsa sonuna ₺ ekle
+    let formattedPrice = pkgForm.price.trim();
+    if (formattedPrice && !formattedPrice.endsWith('₺')) {
+      // Eğer kullanıcı "1500" yazdıysa "1500₺" yap, "1500 TL" yazdıysa da temizleyip "1500₺" yap
+      const numericPart = formattedPrice.replace(/[^0-9,.]/g, '');
+      formattedPrice = numericPart + '₺';
+    }
+    formData.append('price', formattedPrice);
     formData.append('period', pkgForm.period);
     formData.append('description', pkgForm.description);
     formData.append('features', JSON.stringify(parsedFeatures));
@@ -152,6 +167,7 @@ const AdminTransformations = () => {
     formData.append('color', pkgForm.color || 'var(--camo-mid)');
     formData.append('btnClass', pkgForm.btnClass || 'pricing-btn');
     formData.append('order_index', String(pkgForm.order_index || 0));
+    formData.append('stock', String(pkgForm.stock !== undefined ? pkgForm.stock : 999));
     formData.append('removeBackground', removeBg);
     if (pkgBgFile) {
       formData.append('backgroundImage', pkgBgFile);
@@ -169,16 +185,16 @@ const AdminTransformations = () => {
         body: formData
       });
       const data = await res.json();
-      if(data.success) {
-        setMessage(editingPkg ? "Paket başarıyla güncellendi!" : "Paket başarıyla eklendi!");
+      if (data.success) {
+        showNotif(editingPkg ? "Paket başarıyla güncellendi!" : "Paket başarıyla eklendi!");
         fetchPackages();
         handleCancelPkg();
       } else {
-        if(res.status === 401 || res.status === 403) handleLogout();
-        setMessage("Hata: " + data.error);
+        if (res.status === 401 || res.status === 403) handleLogout();
+        showNotif("Hata: " + data.error, "error");
       }
-    } catch(err) {
-      setMessage("Bir hata oluştu.");
+    } catch (err) {
+      showNotif("Bir hata oluştu.", "error");
     } finally {
       setLoading(false);
     }
@@ -197,17 +213,17 @@ const AdminTransformations = () => {
   };
 
   const handleDeletePkg = async (id) => {
-    if(!window.confirm("Bu paketi silmek istediğinize emin misiniz?")) return;
+    if (!window.confirm("Bu paketi silmek istediğinize emin misiniz?")) return;
     try {
       const res = await fetch(`${API_URL}/api/admin/packages/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
-      if(data.success) {
+      if (data.success) {
         fetchPackages();
       }
-    } catch(err) {
+    } catch (err) {
       console.error(err);
     }
   };
@@ -216,7 +232,7 @@ const AdminTransformations = () => {
     setEditingPkg(false);
     setPkgBgFile(null);
     setRemoveBg(false);
-    setPkgForm({ category: 'online', name: '', badge: '', price: '', period: '', description: '', features: '', unavailable: '', color: 'var(--camo-mid)', btnClass: 'pricing-btn', order_index: 0 });
+    setPkgForm({ category: 'online', name: '', badge: '', price: '', period: '', description: '', features: '', unavailable: '', color: 'var(--camo-mid)', btnClass: 'pricing-btn', order_index: 0, stock: 999 });
   };
 
   const handlePkgBackgroundChange = (e) => {
@@ -248,15 +264,15 @@ const AdminTransformations = () => {
       const data = await res.json();
 
       if (data.success) {
-        setMessage('Görsel başarıyla yüklendi.');
+        showNotif('Görsel başarıyla yüklendi.');
         setFile(null);
         fetchImages();
       } else {
         if (res.status === 401 || res.status === 403) handleLogout();
-        setMessage('Yükleme başarısız: ' + data.error);
+        showNotif('Yükleme başarısız: ' + data.error, 'error');
       }
     } catch (err) {
-      setMessage('Yükleme sırasında hata oluştu.');
+      showNotif('Yükleme sırasında hata oluştu.', 'error');
       console.error(err);
     }
     setLoading(false);
@@ -275,15 +291,37 @@ const AdminTransformations = () => {
       const data = await res.json();
 
       if (data.success) {
+        showNotif("Görsel başarıyla silindi.");
         fetchImages();
       } else {
         if (res.status === 401 || res.status === 403) handleLogout();
-        alert("Silme başarısız: " + data.error);
+        showNotif("Silme başarısız: " + data.error, "error");
       }
     } catch (err) {
       console.error(err);
-      alert("Silme sırasında hata oluştu.");
+      showNotif("Silme sırasında hata oluştu.", "error");
     }
+  };
+
+  const handleShopierSync = async () => {
+    if (!window.confirm("Shopier'deki mevcut ürünleriniz web sitenize kopyalanacaktır. Emin misiniz?")) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/api/admin/shopier-sync`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        showNotif(`Senkronizasyon Başarılı! ${data.importedCount || 0} yeni ürün eklendi, ${data.deletedCount || 0} eski ürün temizlendi.`);
+        fetchPackages();
+      } else {
+        showNotif("Hata: " + data.error, "error");
+      }
+    } catch (err) {
+      showNotif("Shopier ile iletişim kurulamadı.", "error");
+    }
+    setLoading(false);
   };
 
   const categoryLabels = {
@@ -300,7 +338,7 @@ const AdminTransformations = () => {
           <div className="relative">
             {/* Arkadaki parlama efekti (sadece odaklanınca veya hover'da belirginleşebilir) */}
             <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-red-900 rounded-lg blur opacity-25 group-hover:opacity-50 group-focus-within:opacity-50 transition duration-1000"></div>
-            
+
             <div className="relative bg-[#0a0a0a] rounded-lg border border-red-900/30 p-1.5 flex items-stretch shadow-2xl">
               {/* Sol kısımdaki ikon veya badge */}
               <div className="pl-4 pr-3 py-3 flex items-center justify-center border-r border-red-900/30">
@@ -310,20 +348,20 @@ const AdminTransformations = () => {
                 <span className="ml-2 text-sm font-semibold tracking-wider text-red-500 uppercase">Admin</span>
               </div>
 
-              <input 
-                type="password" 
-                placeholder="Yönetici şifrenizi girin..." 
+              <input
+                type="password"
+                placeholder="Yönetici şifrenizi girin..."
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required 
+                required
                 className="flex-1 bg-transparent border-none text-white px-4 py-3 focus:outline-none focus:ring-0 placeholder-gray-600 min-w-0"
               />
             </div>
           </div>
 
-          <button 
-            type="submit" 
-            disabled={loading} 
+          <button
+            type="submit"
+            disabled={loading}
             className="w-full bg-red-600 hover:bg-red-700 text-white py-3.5 rounded-lg font-bold tracking-wider text-base uppercase transition-all shadow-[0_0_15px_rgba(220,38,38,0.2)] hover:shadow-[0_0_25px_rgba(220,38,38,0.4)] disabled:opacity-50 flex items-center justify-center"
           >
             {loading ? (
@@ -333,7 +371,7 @@ const AdminTransformations = () => {
               </svg>
             ) : 'Giriş Yap'}
           </button>
-          
+
           {message && <p className="absolute -bottom-8 left-0 right-0 text-center text-sm text-red-500 font-medium">{message}</p>}
         </form>
       </div>
@@ -358,8 +396,19 @@ const AdminTransformations = () => {
           Genel Ayarlar
         </button>
       </div>
-      
-      {message && <p className="admin-tf-msg">{message}</p>}
+
+      {/* Modern Notification Popup */}
+      <div className={`admin-notification ${notif.type} ${notif.show ? 'show' : ''}`}>
+        <div className="notification-icon">
+          {notif.type === 'success' ? '✓' : '!'}
+        </div>
+        <div className="notification-content">
+          <span className="notification-title">
+            {notif.type === 'success' ? 'İŞLEM BAŞARILI' : 'SİSTEM UYARISI'}
+          </span>
+          <span className="notification-text">{notif.text}</span>
+        </div>
+      </div>
 
       {activeTab === 'transformations' && (
         <div className="tab-content fade-in">
@@ -369,14 +418,14 @@ const AdminTransformations = () => {
               {loading ? 'Yükleniyor...' : 'Görsel Ekle'}
             </button>
           </form>
-          
+
           <div className="admin-tf-gallery">
             {images.map(img => (
               <div key={img.id} className="admin-tf-card">
-                <img 
-                  src={`${API_URL}${img.image_url}`} 
-                  alt="Transformation" 
-                  onError={(e) => { e.target.src = img.image_url; }} 
+                <img
+                  src={`${API_URL}${img.image_url}`}
+                  alt="Transformation"
+                  onError={(e) => { e.target.src = img.image_url; }}
                 />
                 <button onClick={() => handleDelete(img.id)} className="admin-tf-delete">
                   Görseli Sil
@@ -390,15 +439,20 @@ const AdminTransformations = () => {
       {activeTab === 'packages' && (
         <div className="tab-content fade-in">
           <form onSubmit={handlePkgSubmit} className="admin-tf-form" style={{ background: '#111', padding: '20px', borderRadius: '10px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-            <div style={{ gridColumn: '1 / -1' }}>
-              <h3 style={{ color: 'var(--camo-sand)', marginBottom: '10px' }}>
+            <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ color: 'var(--camo-sand)', margin: 0 }}>
                 {editingPkg ? "Paketi Düzenle" : "Yeni Paket Ekle"}
               </h3>
+              {!editingPkg && (
+                <button type="button" onClick={handleShopierSync} disabled={loading} style={{ background: '#d4af37', color: 'black', border: 'none', padding: '8px 16px', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.9rem' }}>
+                  Shopier'den Ürünleri Çek
+                </button>
+              )}
             </div>
-            
+
             <div>
-              <label style={{display: 'block', marginBottom: '5px', fontSize: '0.9rem'}}>Kategori</label>
-              <select value={pkgForm.category} onChange={e=>setPkgForm({...pkgForm, category: e.target.value})} style={{width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px'}}>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>Kategori</label>
+              <select value={pkgForm.category} onChange={e => setPkgForm({ ...pkgForm, category: e.target.value })} style={{ width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px' }}>
                 <option value="tekli">Tekli Gelişim</option>
                 <option value="coklu">Çoklu Gelişim</option>
                 <option value="online">Online Koçluk</option>
@@ -406,46 +460,51 @@ const AdminTransformations = () => {
               </select>
             </div>
             <div>
-              <label style={{display: 'block', marginBottom: '5px', fontSize: '0.9rem'}}>Paket İsmi (Örn: 3 Aylık)</label>
-              <input type="text" value={pkgForm.name} onChange={e=>setPkgForm({...pkgForm, name: e.target.value})} required style={{width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px'}} />
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>Paket İsmi (Örn: 3 Aylık)</label>
+              <input type="text" value={pkgForm.name} onChange={e => setPkgForm({ ...pkgForm, name: e.target.value })} required style={{ width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px' }} />
             </div>
 
             <div>
-              <label style={{display: 'block', marginBottom: '5px', fontSize: '0.9rem'}}>Rozet (Örn: En İyi Fiyat)</label>
-              <input type="text" value={pkgForm.badge} onChange={e=>setPkgForm({...pkgForm, badge: e.target.value})} style={{width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px'}}/>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>Rozet (Örn: En İyi Fiyat)</label>
+              <input type="text" value={pkgForm.badge} onChange={e => setPkgForm({ ...pkgForm, badge: e.target.value })} style={{ width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px' }} />
             </div>
             <div>
-              <label style={{display: 'block', marginBottom: '5px', fontSize: '0.9rem'}}>Sıralama / Düzen</label>
-              <input type="number" value={pkgForm.order_index} onChange={e=>setPkgForm({...pkgForm, order_index: parseInt(e.target.value) || 0})} style={{width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px'}}/>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>Sıralama / Düzen</label>
+              <input type="number" value={pkgForm.order_index} onChange={e => setPkgForm({ ...pkgForm, order_index: parseInt(e.target.value) || 0 })} style={{ width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px' }} />
             </div>
 
             <div>
-              <label style={{display: 'block', marginBottom: '5px', fontSize: '0.9rem'}}>Fiyat (Örn: 2.000₺)</label>
-              <input type="text" value={pkgForm.price} onChange={e=>setPkgForm({...pkgForm, price: e.target.value})} required style={{width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px'}} />
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>Fiyat (Sadece rakam yazın, Örn: 2000)</label>
+              <input type="text" value={pkgForm.price} onChange={e => setPkgForm({ ...pkgForm, price: e.target.value })} placeholder="Örn: 2000" required style={{ width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px' }} />
             </div>
             <div>
-              <label style={{display: 'block', marginBottom: '5px', fontSize: '0.9rem'}}>Periyot (Örn: /ay)</label>
-              <input type="text" value={pkgForm.period} onChange={e=>setPkgForm({...pkgForm, period: e.target.value})} required style={{width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px'}} />
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>Periyot (Örn: /ay)</label>
+              <input type="text" value={pkgForm.period} onChange={e => setPkgForm({ ...pkgForm, period: e.target.value })} required style={{ width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px' }} />
             </div>
 
             <div style={{ gridColumn: '1 / -1' }}>
-              <label style={{display: 'block', marginBottom: '5px', fontSize: '0.9rem'}}>Kısa Açıklama</label>
-              <input type="text" value={pkgForm.description} onChange={e=>setPkgForm({...pkgForm, description: e.target.value})} required style={{width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px'}} />
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>Stok Adedi</label>
+              <input type="number" value={pkgForm.stock !== undefined ? pkgForm.stock : 999} onChange={e => setPkgForm({ ...pkgForm, stock: parseInt(e.target.value) || 0 })} required style={{ width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px' }} />
             </div>
 
             <div style={{ gridColumn: '1 / -1' }}>
-              <label style={{display: 'block', marginBottom: '5px', fontSize: '0.9rem'}}>Özellikler (Virgülle ayırın, Örn: Antrenman, Beslenme, İletişim)</label>
-              <textarea value={pkgForm.features} onChange={e=>setPkgForm({...pkgForm, features: e.target.value})} rows="2" style={{width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px'}}></textarea>
-            </div>
-            
-            <div style={{ gridColumn: '1 / -1' }}>
-              <label style={{display: 'block', marginBottom: '5px', fontSize: '0.9rem'}}>Eksik Özellikler - Üzeri Çizili Gözükecekler (Virgülle ayırın)</label>
-              <textarea value={pkgForm.unavailable} onChange={e=>setPkgForm({...pkgForm, unavailable: e.target.value})} rows="2" style={{width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px'}}></textarea>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>Kısa Açıklama</label>
+              <input type="text" value={pkgForm.description} onChange={e => setPkgForm({ ...pkgForm, description: e.target.value })} required style={{ width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px' }} />
             </div>
 
             <div style={{ gridColumn: '1 / -1' }}>
-              <label style={{display: 'block', marginBottom: '5px', fontSize: '0.9rem'}}>Paket Arkaplan Görseli (Opsiyonel)</label>
-              <input type="file" accept="image/*" onChange={handlePkgBackgroundChange} style={{width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px'}} />
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>Özellikler (Virgülle ayırın, Örn: Antrenman, Beslenme, İletişim)</label>
+              <textarea value={pkgForm.features} onChange={e => setPkgForm({ ...pkgForm, features: e.target.value })} rows="2" style={{ width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px' }}></textarea>
+            </div>
+
+            <div style={{ gridColumn: '1 / -1' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>Eksik Özellikler - Üzeri Çizili Gözükecekler (Virgülle ayırın)</label>
+              <textarea value={pkgForm.unavailable} onChange={e => setPkgForm({ ...pkgForm, unavailable: e.target.value })} rows="2" style={{ width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px' }}></textarea>
+            </div>
+
+            <div style={{ gridColumn: '1 / -1' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>Paket Arkaplan Görseli (Opsiyonel)</label>
+              <input type="file" accept="image/*" onChange={handlePkgBackgroundChange} style={{ width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px' }} />
               {pkgBgFile && (
                 <p style={{ marginTop: '8px', fontSize: '0.82rem', color: '#cfcfcf' }}>
                   Secilen dosya: {pkgBgFile.name}
@@ -532,22 +591,22 @@ const AdminTransformations = () => {
         <div className="tab-content fade-in">
           <form onSubmit={handleSettingsSubmit} className="admin-tf-form" style={{ background: '#111', padding: '20px', borderRadius: '10px', display: 'grid', gridTemplateColumns: '1fr', gap: '15px' }}>
             <h3 style={{ color: 'var(--camo-sand)', marginBottom: '10px' }}>Sosyal Medya Linkleri</h3>
-            
+
             <div>
-              <label style={{display: 'block', marginBottom: '5px', fontSize: '0.9rem'}}>Instagram URL</label>
-              <input type="text" value={settings.social_instagram || ''} onChange={e=>setSettings({...settings, social_instagram: e.target.value})} style={{width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px'}} placeholder="https://instagram.com/..." />
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>Instagram URL</label>
+              <input type="text" value={settings.social_instagram || ''} onChange={e => setSettings({ ...settings, social_instagram: e.target.value })} style={{ width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px' }} placeholder="https://instagram.com/..." />
             </div>
             <div>
-              <label style={{display: 'block', marginBottom: '5px', fontSize: '0.9rem'}}>YouTube URL</label>
-              <input type="text" value={settings.social_youtube || ''} onChange={e=>setSettings({...settings, social_youtube: e.target.value})} style={{width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px'}} placeholder="https://youtube.com/..." />
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>YouTube URL</label>
+              <input type="text" value={settings.social_youtube || ''} onChange={e => setSettings({ ...settings, social_youtube: e.target.value })} style={{ width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px' }} placeholder="https://youtube.com/..." />
             </div>
             <div>
-              <label style={{display: 'block', marginBottom: '5px', fontSize: '0.9rem'}}>TikTok URL</label>
-              <input type="text" value={settings.social_tiktok || ''} onChange={e=>setSettings({...settings, social_tiktok: e.target.value})} style={{width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px'}} placeholder="https://tiktok.com/..." />
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>TikTok URL</label>
+              <input type="text" value={settings.social_tiktok || ''} onChange={e => setSettings({ ...settings, social_tiktok: e.target.value })} style={{ width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px' }} placeholder="https://tiktok.com/..." />
             </div>
             <div>
-              <label style={{display: 'block', marginBottom: '5px', fontSize: '0.9rem'}}>Twitter / X URL</label>
-              <input type="text" value={settings.social_twitter || ''} onChange={e=>setSettings({...settings, social_twitter: e.target.value})} style={{width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px'}} placeholder="https://twitter.com/..." />
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem' }}>Twitter / X URL</label>
+              <input type="text" value={settings.social_twitter || ''} onChange={e => setSettings({ ...settings, social_twitter: e.target.value })} style={{ width: '100%', padding: '10px', background: '#222', color: 'white', border: '1px solid #333', borderRadius: '5px' }} placeholder="https://twitter.com/..." />
             </div>
 
             <div style={{ marginTop: '10px' }}>

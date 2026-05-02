@@ -68,6 +68,9 @@ if (!packageColumns.includes('background_image_url')) {
 if (!packageColumns.includes('shopier_id')) {
   db.prepare('ALTER TABLE packages ADD COLUMN shopier_id TEXT').run();
 }
+if (!packageColumns.includes('stock')) {
+  db.prepare('ALTER TABLE packages ADD COLUMN stock INTEGER DEFAULT 999').run();
+}
 
 // Başlangıç için varsayılan paketler yoksa DB'ye tohumlama (seed) yap.
 const packageCount = db.prepare('SELECT COUNT(*) as count FROM packages').get();
@@ -77,9 +80,9 @@ if (packageCount.count === 0) {
     { category: 'coklu', name: 'Orta Seviye', badge: 'En Çok Tercih Edilen', price: '750₺', period: 'tek sefer', desc: 'İhtiyacın olan üçlü paket avantajı.', features: JSON.stringify(['Antrenman Planlaması', 'Beslenme Planlaması', 'Supplement Planlaması']), unavailable: JSON.stringify(['Isınma ve Soğuma', 'Uyku Protokolleri']), color: '#ca0d1c', btnClass: 'pricing-btn premium-btn', order_index: 2 },
     { category: 'online', name: '1 Aylık', badge: '', price: '2.000₺', period: '/ay', desc: 'Birebir takipli çevrimiçi koçluk.', features: JSON.stringify(['Antrenman, Beslenme, Supplement Planı', 'Isınma ve Soğuma Protokolleri', 'Antrenman, Beslenme, Uyku Protokolleri']), unavailable: JSON.stringify([]), color: 'var(--camo-dark)', btnClass: 'pricing-btn', order_index: 3 },
   ];
-  const insertPkg = db.prepare('INSERT INTO packages (id, category, name, badge, price, period, description, features, unavailable, color, btnClass, order_index) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+  const insertPkg = db.prepare('INSERT INTO packages (id, category, name, badge, price, period, description, features, unavailable, color, btnClass, order_index, stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
   defaultPackages.forEach(p => {
-    insertPkg.run(uuidv4(), p.category, p.name, p.badge, p.price, p.period, p.desc, p.features, p.unavailable, p.color, p.btnClass, p.order_index);
+    insertPkg.run(uuidv4(), p.category, p.name, p.badge, p.price, p.period, p.desc, p.features, p.unavailable, p.color, p.btnClass, p.order_index, 999);
   });
 }
 
@@ -194,7 +197,7 @@ const storage = multer.diskStorage({
     cb(null, uniqueSuffix + path.extname(file.originalname));
   }
 });
-const upload = multer({ 
+const upload = multer({
   storage: storage,
   limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
 });
@@ -208,14 +211,14 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // 3. DDoS ve Spam Koruması (Rate Limiting)
 const checkoutLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 dakika içinde
-  max: 20, 
+  max: 20,
   message: { success: false, error: 'Sistem limitlerine takıldınız.' }
 });
 
 const SHOPIER_API_KEY = process.env.SHOPIER_API_KEY || 'API_KEY';
 const SHOPIER_API_SECRET = process.env.SHOPIER_API_SECRET || 'API_SECRET';
 const SHOPIER_WEBSITE_INDEX = process.env.SHOPIER_WEBSITE_INDEX || '1';
-const RETURN_URL = process.env.RETURN_URL || 'http://localhost:5173/payment-success'; 
+const RETURN_URL = process.env.RETURN_URL || 'http://localhost:5173/payment-success';
 // Kullanıcının mevcut PAT (Personal Access Token) anahtarını Bearer olarak kullanacağız
 const SHOPIER_APP_TOKEN = process.env.SHOPIER_APP_TOKEN || process.env.SHOPIER_API_KEY;
 
@@ -260,12 +263,12 @@ app.post('/api/checkout', checkoutLimiter, (req, res) => {
     const random_nr = Math.floor(Math.random() * 1000000).toString();
     const currency = '0'; // TL
     const hashData = random_nr + platformOrderId + amount.toString() + currency;
-    
+
     // HMAC-SHA256 (Şifreleme)
     const hmac = crypto.createHmac('sha256', SHOPIER_API_SECRET);
     hmac.update(hashData);
     const signature = hmac.digest('base64');
-    
+
     // HTML OLUŞTUR
     const shopierHTMLForm = `
       <!DOCTYPE html>
@@ -321,18 +324,18 @@ app.post('/api/shopier/callback', (req, res) => {
     try {
       const expectedHashStr = data.random_nr + data.platform_order_id + data.total_order_value + data.currency;
       const expectedSignature = crypto.createHmac('sha256', SHOPIER_API_SECRET).update(expectedHashStr).digest('base64');
-      
+
       if (data.signature !== expectedSignature) {
         return res.status(403).send('Invalid Signature');
       }
 
       db.prepare("UPDATE orders SET status = ? WHERE platform_order_id = ?").run('ödendi', data.platform_order_id);
       res.status(200).send('OK');
-    } catch(err) {
+    } catch (err) {
       res.status(500).send('Servis Hatası');
     }
   } else {
-    res.status(200).send('OK'); 
+    res.status(200).send('OK');
   }
 });
 
@@ -346,7 +349,7 @@ app.get('/api/transformations', (req, res) => {
     const stmt = db.prepare('SELECT id, image_url, created_at FROM transformations ORDER BY created_at DESC');
     const result = stmt.all();
     res.json({ success: true, data: result });
-  } catch(e) {
+  } catch (e) {
     res.status(500).json({ success: false, error: 'Sorgu hatası' });
   }
 });
@@ -430,7 +433,7 @@ app.post('/api/admin/transformations', verifyAdmin, upload.single('images'), (re
     insertStmt.run(uuidv4(), imagePath);
 
     res.json({ success: true, message: 'Dönüşüm eklendi', imageUrl: imagePath });
-  } catch(e) {
+  } catch (e) {
     res.status(500).json({ success: false, error: 'Veritabanı hatası' });
   }
 });
@@ -441,14 +444,14 @@ app.delete('/api/admin/transformations/:id', verifyAdmin, (req, res) => {
   try {
     // Resmi bul
     const row = db.prepare('SELECT image_url FROM transformations WHERE id = ?').get(id);
-    if(row) {
+    if (row) {
       // Dosyayi sunucudan fiziksel olarak sil
       deleteUploadedFile(row.image_url);
     }
     // DB'den sil
     db.prepare('DELETE FROM transformations WHERE id = ?').run(id);
     res.json({ success: true, message: 'Dönüşüm silindi' });
-  } catch(e) {
+  } catch (e) {
     res.status(500).json({ success: false, error: 'Silinemedi' });
   }
 });
@@ -467,7 +470,7 @@ app.get('/api/packages', (req, res) => {
       features: p.features ? JSON.parse(p.features) : [],
       unavailable: p.unavailable ? JSON.parse(p.unavailable) : []
     }));
-    
+
     // Kategorilerine (tekli, coklu, online) göre grupla
     const grouped = {
       tekli: parsedPackages.filter(p => p.category === 'tekli'),
@@ -475,19 +478,20 @@ app.get('/api/packages', (req, res) => {
       online: parsedPackages.filter(p => p.category === 'online'),
       msu: parsedPackages.filter(p => p.category === 'msu'),
     };
-    
+
     res.json({ success: true, data: grouped, flatData: parsedPackages });
-  } catch(e) {
+  } catch (e) {
     res.status(500).json({ success: false, error: 'Sorgu hatası' });
   }
 });
 
 // Paket Ekle
 app.post('/api/admin/packages', verifyAdmin, upload.single('backgroundImage'), async (req, res) => {
-  const { category, name, badge, price, period, description, features, unavailable, color, btnClass, order_index } = req.body;
+  const { category, name, badge, price, period, description, features, unavailable, color, btnClass, order_index, stock } = req.body;
   const parsedFeatures = parseArrayField(features);
   const parsedUnavailable = parseArrayField(unavailable);
   const orderIndex = Number.isFinite(Number(order_index)) ? Number(order_index) : 0;
+  const parsedStock = Number.isFinite(Number(stock)) ? Number(stock) : 999;
   const backgroundImagePath = req.file ? '/uploads/' + req.file.filename : null;
 
   let shopierId = null;
@@ -497,6 +501,10 @@ app.post('/api/admin/packages', verifyAdmin, upload.single('backgroundImage'), a
     if (SHOPIER_APP_TOKEN && SHOPIER_APP_TOKEN !== 'API_KEY') {
       try {
         const numericPrice = parseFloat(price.replace(/[^0-9,.]/g, '').replace(/\./g, '').replace(',', '.'));
+        const publicMediaUrl = backgroundImagePath
+          ? `${process.env.BASE_URL || 'http://localhost:5000'}${backgroundImagePath}`
+          : "https://dummyimage.com/600x600/111/d4af37.png";
+
         const shopierRes = await fetch('https://api.shopier.com/v1/products', {
           method: 'POST',
           headers: {
@@ -506,11 +514,18 @@ app.post('/api/admin/packages', verifyAdmin, upload.single('backgroundImage'), a
           body: JSON.stringify({
             title: name,
             description: description || name,
-            price: { price: numericPrice || 1, currency: 'TRY' },
+            priceData: { price: numericPrice || 1, currency: 'TRY' },
             type: 'digital',
-            stockQuantity: 9999,
+            stockQuantity: parsedStock,
             shippingPayer: 'sellerPays',
-            placementScore: 100
+            placementScore: 100,
+            media: [
+              {
+                type: "image",
+                url: publicMediaUrl,
+                placement: 1
+              }
+            ]
           })
         });
         const shopierData = await shopierRes.json();
@@ -525,8 +540,8 @@ app.post('/api/admin/packages', verifyAdmin, upload.single('backgroundImage'), a
     }
 
     const insertStmt = db.prepare(`
-      INSERT INTO packages (id, category, name, badge, price, period, description, features, unavailable, color, btnClass, order_index, background_image_url, shopier_id)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO packages (id, category, name, badge, price, period, description, features, unavailable, color, btnClass, order_index, background_image_url, shopier_id, stock)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     const newId = uuidv4();
     insertStmt.run(
@@ -543,10 +558,11 @@ app.post('/api/admin/packages', verifyAdmin, upload.single('backgroundImage'), a
       btnClass || 'pricing-btn',
       orderIndex,
       backgroundImagePath,
-      shopierId
+      shopierId,
+      parsedStock
     );
     res.json({ success: true, message: 'Paket eklendi', id: newId });
-  } catch(e) {
+  } catch (e) {
     console.error(e);
     if (backgroundImagePath) {
       deleteUploadedFile(backgroundImagePath);
@@ -558,11 +574,12 @@ app.post('/api/admin/packages', verifyAdmin, upload.single('backgroundImage'), a
 // Paket Güncelle
 app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage'), async (req, res) => {
   const { id } = req.params;
-  const { category, name, badge, price, period, description, features, unavailable, color, btnClass, order_index, removeBackground } = req.body;
+  const { category, name, badge, price, period, description, features, unavailable, color, btnClass, order_index, removeBackground, stock } = req.body;
   const parsedFeatures = parseArrayField(features);
   const parsedUnavailable = parseArrayField(unavailable);
   const orderIndex = Number.isFinite(Number(order_index)) ? Number(order_index) : 0;
-  
+  const parsedStock = Number.isFinite(Number(stock)) ? Number(stock) : 999;
+
   try {
     const existingPackage = db.prepare('SELECT background_image_url, shopier_id FROM packages WHERE id = ?').get(id);
     if (!existingPackage) {
@@ -591,6 +608,10 @@ app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage')
     if (existingPackage.shopier_id && SHOPIER_APP_TOKEN && SHOPIER_APP_TOKEN !== 'API_KEY') {
       try {
         const numericPrice = parseFloat(price.replace(/[^0-9,.]/g, '').replace(/\./g, '').replace(',', '.'));
+        const publicMediaUrl = backgroundImagePath
+          ? `${process.env.BASE_URL || 'http://localhost:5000'}${backgroundImagePath}`
+          : "https://dummyimage.com/600x600/111/d4af37.png";
+
         const shopierRes = await fetch(`https://api.shopier.com/v1/products/${existingPackage.shopier_id}`, {
           method: 'PUT',
           headers: {
@@ -600,15 +621,22 @@ app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage')
           body: JSON.stringify({
             title: name,
             description: description || name,
-            price: { price: numericPrice || 1, currency: 'TRY' },
+            priceData: { price: numericPrice || 1, currency: 'TRY' },
             type: 'digital',
-            stockQuantity: 9999,
-            shippingPayer: 'sellerPays'
+            stockQuantity: parsedStock,
+            shippingPayer: 'sellerPays',
+            media: [
+              {
+                type: "image",
+                url: publicMediaUrl,
+                placement: 1
+              }
+            ]
           })
         });
         const shopierData = await shopierRes.json();
         if (!shopierData || !shopierData.id) {
-           console.error("Shopier Update Warning:", shopierData);
+          console.error("Shopier Update Warning:", shopierData);
         }
       } catch (err) {
         console.error("Shopier API Error during Update:", err);
@@ -617,7 +645,7 @@ app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage')
 
     const updateStmt = db.prepare(`
       UPDATE packages
-      SET category=?, name=?, badge=?, price=?, period=?, description=?, features=?, unavailable=?, color=?, btnClass=?, order_index=?, background_image_url=?
+      SET category=?, name=?, badge=?, price=?, period=?, description=?, features=?, unavailable=?, color=?, btnClass=?, order_index=?, background_image_url=?, stock=?
       WHERE id=?
     `);
     const info = updateStmt.run(
@@ -633,6 +661,7 @@ app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage')
       btnClass || 'pricing-btn',
       orderIndex,
       backgroundImagePath,
+      parsedStock,
       id
     );
 
@@ -647,12 +676,95 @@ app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage')
       }
       res.status(404).json({ success: false, error: 'Paket bulunamadı' });
     }
-  } catch(e) {
+  } catch (e) {
     console.error(e);
     if (req.file) {
       deleteUploadedFile('/uploads/' + req.file.filename);
     }
     res.status(500).json({ success: false, error: 'Güncelleme hatası' });
+  }
+});
+
+// Shopier Tam Senkronizasyon (İçe Aktarma ve Silme)
+app.post('/api/admin/shopier-sync', verifyAdmin, async (req, res) => {
+  if (!SHOPIER_APP_TOKEN || SHOPIER_APP_TOKEN === 'API_KEY') {
+    return res.status(400).json({ success: false, error: 'Shopier Token yapılandırılmamış.' });
+  }
+
+  try {
+    const shopierRes = await fetch('https://api.shopier.com/v1/products?limit=100', {
+      headers: { 'Authorization': `Bearer ${SHOPIER_APP_TOKEN}` }
+    });
+    const shopierData = await shopierRes.json();
+    
+    // Shopier array dönüyor
+    if (!shopierData || !Array.isArray(shopierData)) {
+      console.error("Shopier geçersiz yanıt:", shopierData);
+      return res.status(500).json({ success: false, error: 'Shopier API ürünleri getirilemedi.' });
+    }
+
+    const shopierProducts = shopierData;
+    const shopierIds = shopierProducts.map(p => String(p.id));
+
+    // 1. Sitenizde olup Shopier'de OLMAYANLARI sil
+    const localPackages = db.prepare('SELECT id, shopier_id FROM packages WHERE shopier_id IS NOT NULL').all();
+    let deletedCount = 0;
+    const deleteStmt = db.prepare('DELETE FROM packages WHERE id = ?');
+    
+    for (const pkg of localPackages) {
+      if (!shopierIds.includes(String(pkg.shopier_id))) {
+        deleteStmt.run(pkg.id);
+        deletedCount++;
+      }
+    }
+
+    // 2. Shopier'de olup sitenizde OLMAYANLARI ekle
+    const insertPkg = db.prepare('INSERT INTO packages (id, category, name, price, period, description, features, unavailable, color, btnClass, order_index, shopier_id, stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    let importedCount = 0;
+
+    for (const prod of shopierProducts) {
+      // 1. Önce Shopier ID ile kontrol et
+      let existing = db.prepare('SELECT id FROM packages WHERE shopier_id = ?').get(String(prod.id));
+      
+      // 2. Eğer ID ile bulunamadıysa, ismiyle aynı olan ve henüz bağlantısı (shopier_id) olmayan bir paket var mı bak
+      if (!existing) {
+        existing = db.prepare('SELECT id FROM packages WHERE name = ? AND (shopier_id IS NULL OR shopier_id = "")').get(prod.title);
+        if (existing) {
+          // Bulunduysa bu pakete shopier_id ata ve stoğu güncelle
+          db.prepare('UPDATE packages SET shopier_id = ?, stock = ? WHERE id = ?').run(String(prod.id), prod.stockQuantity !== undefined ? prod.stockQuantity : 999, existing.id);
+          importedCount++; 
+          continue;
+        }
+      }
+
+      // 3. Hiç bulunamadıysa yeni paket olarak ekle
+      if (!existing) {
+        const pPrice = prod.priceData ? prod.priceData.price + "₺" : (prod.price ? prod.price.price + "₺" : "1₺");
+        const pStock = prod.stockQuantity !== undefined ? prod.stockQuantity : 999;
+        
+        insertPkg.run(
+          uuidv4(),
+          'online', 
+          prod.title || 'İsimsiz', 
+          pPrice, 
+          'tek sefer', 
+          prod.description || '', 
+          JSON.stringify([]), 
+          JSON.stringify([]), 
+          'var(--camo-mid)', 
+          'pricing-btn', 
+          0,
+          String(prod.id),
+          pStock
+        );
+        importedCount++;
+      }
+    }
+
+    res.json({ success: true, importedCount, deletedCount });
+  } catch (err) {
+    console.error("Shopier Sync Error:", err);
+    res.status(500).json({ success: false, error: 'Senkronizasyon hatası.' });
   }
 });
 
@@ -685,7 +797,7 @@ app.delete('/api/admin/packages/:id', verifyAdmin, async (req, res) => {
 
     db.prepare('DELETE FROM packages WHERE id = ?').run(id);
     res.json({ success: true, message: 'Paket silindi' });
-  } catch(e) {
+  } catch (e) {
     res.status(500).json({ success: false, error: 'Paket silinemedi' });
   }
 });
@@ -701,14 +813,14 @@ app.get('/api/settings', (req, res) => {
     const settingsObj = {};
     settings.forEach(s => { settingsObj[s.key] = s.value; });
     res.json({ success: true, data: settingsObj });
-  } catch(e) {
+  } catch (e) {
     res.status(500).json({ success: false, error: 'Sorgu hatası' });
   }
 });
 
 // Ayarları Güncelle
 app.put('/api/admin/settings', verifyAdmin, (req, res) => {
-  const settingsObj = req.body; 
+  const settingsObj = req.body;
   try {
     const updateStmt = db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value');
     db.transaction(() => {
@@ -717,7 +829,7 @@ app.put('/api/admin/settings', verifyAdmin, (req, res) => {
       }
     })();
     res.json({ success: true, message: 'Ayarlar güncellendi' });
-  } catch(e) {
+  } catch (e) {
     res.status(500).json({ success: false, error: 'Güncelleme hatası' });
   }
 });

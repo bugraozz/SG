@@ -61,9 +61,13 @@ const Packages = () => {
   }, [loading, packages]);
 
   const handleCheckout = (pkg) => {
-    // Burada satın alma sayfasına veya modalına yönlendirebiliriz
-    // Şimdilik ödeme elementinin href değerini tetikleyebiliriz
-    window.location.hash = '#contact'; // ya da #odeme
+    if (pkg.shopier_id) {
+      // Shopier ürün sayfasına yönlendir (Yeni sekmede açar)
+      window.open(`https://www.shopier.com/${pkg.shopier_id}`, '_blank');
+    } else {
+      // Shopier bağlantısı yoksa hiçbir şey yapma
+      console.log("Shopier bağlantısı bulunamadı.");
+    }
   };
 
   return (
@@ -81,8 +85,10 @@ const Packages = () => {
             {packages.map((pkg) => {
               const isPremium = pkg.btnClass && pkg.btnClass.includes('premium-btn');
               return (
-                <div key={pkg.id} className={`package-card ${isPremium ? 'premium-card' : ''}`}>
+                <div key={pkg.id} className={`package-card ${isPremium ? 'premium-card' : ''} ${pkg.stock <= 0 ? 'out-of-stock' : ''}`}>
                   {pkg.badge && <div className="popular-badge">{pkg.badge}</div>}
+                  {pkg.stock <= 0 && <div className="popular-badge" style={{ background: '#ca0d1c', top: pkg.badge ? '45px' : '15px' }}>Tükendi</div>}
+                  {pkg.stock > 0 && pkg.stock <= 5 && <div className="popular-badge" style={{ background: '#f59e0b', top: pkg.badge ? '45px' : '15px' }}>Son {pkg.stock} Paket!</div>}
                   <h3 className="pkg-title">{pkg.name}</h3>
                   <p className="pkg-desc">{pkg.description}</p>
                   <div className="pkg-price">{pkg.price} <span className="period">{pkg.period}</span></div>
@@ -94,8 +100,8 @@ const Packages = () => {
                       <li key={`unav-${idx}`} className="unavailable">{unav}</li>
                     ))}
                   </ul>
-                  <button className={`pkg-btn ${isPremium ? 'active-btn' : ''}`} onClick={() => handleCheckout(pkg)}>
-                    Seç
+                  <button className={`pkg-btn ${isPremium ? 'active-btn' : ''}`} onClick={() => handleCheckout(pkg)} disabled={pkg.stock <= 0} style={pkg.stock <= 0 ? { opacity: 0.5, cursor: 'not-allowed' } : {}}>
+                    {pkg.stock <= 0 ? 'Tükendi' : 'Seç'}
                   </button>
                 </div>
               );
