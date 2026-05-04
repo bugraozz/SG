@@ -501,9 +501,12 @@ app.post('/api/admin/packages', verifyAdmin, upload.single('backgroundImage'), a
     if (SHOPIER_APP_TOKEN && SHOPIER_APP_TOKEN !== 'API_KEY') {
       try {
         const numericPrice = parseFloat(price.replace(/[^0-9,.]/g, '').replace(/\./g, '').replace(',', '.'));
-        const publicMediaUrl = backgroundImagePath
-          ? `${process.env.BASE_URL || 'http://localhost:5000'}${backgroundImagePath}`
-          : "https://dummyimage.com/600x600/111/d4af37.png";
+        let publicMediaUrl = "https://dummyimage.com/600x600/111/d4af37.png";
+        if (backgroundImagePath) {
+          const base = process.env.BASE_URL || 'http://localhost:5000';
+          const cleanBase = base.endsWith('/') ? base.slice(0, -1) : base;
+          publicMediaUrl = `${cleanBase}${backgroundImagePath}`;
+        }
 
         const shopierRes = await fetch('https://api.shopier.com/v1/products', {
           method: 'POST',
@@ -608,9 +611,12 @@ app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage')
     if (existingPackage.shopier_id && SHOPIER_APP_TOKEN && SHOPIER_APP_TOKEN !== 'API_KEY') {
       try {
         const numericPrice = parseFloat(price.replace(/[^0-9,.]/g, '').replace(/\./g, '').replace(',', '.'));
-        const publicMediaUrl = backgroundImagePath
-          ? `${process.env.BASE_URL || 'http://localhost:5000'}${backgroundImagePath}`
-          : "https://dummyimage.com/600x600/111/d4af37.png";
+        let publicMediaUrl = "https://dummyimage.com/600x600/111/d4af37.png";
+        if (backgroundImagePath) {
+          const base = process.env.BASE_URL || 'http://localhost:5000';
+          const cleanBase = base.endsWith('/') ? base.slice(0, -1) : base;
+          publicMediaUrl = `${cleanBase}${backgroundImagePath}`;
+        }
 
         const shopierRes = await fetch(`https://api.shopier.com/v1/products/${existingPackage.shopier_id}`, {
           method: 'PUT',
