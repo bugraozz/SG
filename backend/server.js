@@ -185,7 +185,6 @@ msuDefaults.forEach((pkg) => {
 
 const app = express();
 
-// Multer Storage Configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const dir = './uploads';
@@ -197,9 +196,20 @@ const storage = multer.diskStorage({
     cb(null, uniqueSuffix + path.extname(file.originalname));
   }
 });
+
+const fileFilter = (req, file, cb) => {
+  const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+  if (allowedMimeTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Sadece görsel (JPEG, PNG, WEBP, vb.) formatları yüklenebilir!'), false);
+  }
+};
+
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  fileFilter: fileFilter
 });
 
 // 2. Güvenlik Katmanları (Middlewares)
@@ -269,30 +279,39 @@ app.post('/api/checkout', checkoutLimiter, (req, res) => {
     hmac.update(hashData);
     const signature = hmac.digest('base64');
 
-    // HTML OLUŞTUR
+    // HTML OLUŞTUR (XSS Koruması ile)
+    const escapeHtml = (text) => {
+      return (text || '').toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    };
+
     const shopierHTMLForm = `
       <!DOCTYPE html>
       <html>
       <head><title>Güvenli Ödeme Noktasına Aktarılıyorsunuz...</title></head>
       <body>
         <form id="shopier_form_checkout" method="post" action="https://www.shopier.com/ShowProduct/api_pay4.php">
-          <input type="hidden" name="API_key" value="${SHOPIER_API_KEY}">
-          <input type="hidden" name="website_index" value="${SHOPIER_WEBSITE_INDEX}">
-          <input type="hidden" name="platform_order_id" value="${platformOrderId}">
-          <input type="hidden" name="product_name" value="${planName}">
+          <input type="hidden" name="API_key" value="${escapeHtml(SHOPIER_API_KEY)}">
+          <input type="hidden" name="website_index" value="${escapeHtml(SHOPIER_WEBSITE_INDEX)}">
+          <input type="hidden" name="platform_order_id" value="${escapeHtml(platformOrderId)}">
+          <input type="hidden" name="product_name" value="${escapeHtml(planName)}">
           <input type="hidden" name="product_type" value="2">
-          <input type="hidden" name="buyer_name" value="${firstName}">
-          <input type="hidden" name="buyer_surname" value="${lastName}">
-          <input type="hidden" name="buyer_email" value="${email}">
+          <input type="hidden" name="buyer_name" value="${escapeHtml(firstName)}">
+          <input type="hidden" name="buyer_surname" value="${escapeHtml(lastName)}">
+          <input type="hidden" name="buyer_email" value="${escapeHtml(email)}">
           <input type="hidden" name="buyer_account_age" value="0">
           <input type="hidden" name="buyer_id_nr" value="0">
-          <input type="hidden" name="buyer_phone" value="${phone}">
-          <input type="hidden" name="billing_address" value="${city || 'Turkiye'}">
-          <input type="hidden" name="billing_city" value="${city || 'Turkiye'}">
+          <input type="hidden" name="buyer_phone" value="${escapeHtml(phone)}">
+          <input type="hidden" name="billing_address" value="${escapeHtml(city || 'Turkiye')}">
+          <input type="hidden" name="billing_city" value="${escapeHtml(city || 'Turkiye')}">
           <input type="hidden" name="billing_country" value="TR">
           <input type="hidden" name="billing_postcode" value="34000">
-          <input type="hidden" name="shipping_address" value="${city || 'Turkiye'}">
-          <input type="hidden" name="shipping_city" value="${city || 'Turkiye'}">
+          <input type="hidden" name="shipping_address" value="${escapeHtml(city || 'Turkiye')}">
+          <input type="hidden" name="shipping_city" value="${escapeHtml(city || 'Turkiye')}">
           <input type="hidden" name="shipping_country" value="TR">
           <input type="hidden" name="shipping_postcode" value="34000">
           <input type="hidden" name="total_order_value" value="${amount}">
@@ -424,7 +443,7 @@ const parseArrayField = (value) => {
 app.post('/api/admin/transformations', verifyAdmin, upload.single('images'), (req, res) => {
   // Eğer resim yüklenemediyse kontrolü
   if (!req.file) {
-    return res.status(400).json({ success: false, error: 'Lütfen bir resim yükleyin.' });
+    return res.status(400).json({ success: false, error: 'Lütfen geçerli bir resim yükleyin.' });
   }
 
   try {
