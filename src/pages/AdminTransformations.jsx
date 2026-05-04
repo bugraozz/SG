@@ -7,6 +7,16 @@ const AdminTransformations = () => {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [notif, setNotif] = useState({ show: false, type: 'success', text: '' });
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, text: '', onConfirm: null, isDestructive: true });
+
+  const handleConfirm = () => {
+    if (confirmDialog.onConfirm) confirmDialog.onConfirm();
+    setConfirmDialog({ isOpen: false, text: '', onConfirm: null, isDestructive: true });
+  };
+
+  const handleCancelConfirm = () => {
+    setConfirmDialog({ isOpen: false, text: '', onConfirm: null, isDestructive: true });
+  };
 
   const showNotif = (text, type = 'success') => {
     setNotif({ show: true, type, text });
@@ -213,19 +223,25 @@ const AdminTransformations = () => {
   };
 
   const handleDeletePkg = async (id) => {
-    if (!window.confirm("Bu paketi silmek istediğinize emin misiniz?")) return;
-    try {
-      const res = await fetch(`${API_URL}/api/admin/packages/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if (data.success) {
-        fetchPackages();
+    setConfirmDialog({
+      isOpen: true,
+      text: "Bu paketi silmek istediğinize emin misiniz?",
+      isDestructive: true,
+      onConfirm: async () => {
+        try {
+          const res = await fetch(`${API_URL}/api/admin/packages/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const data = await res.json();
+          if (data.success) {
+            fetchPackages();
+          }
+        } catch (err) {
+          console.error(err);
+        }
       }
-    } catch (err) {
-      console.error(err);
-    }
+    });
   };
 
   const handleCancelPkg = () => {
@@ -279,49 +295,60 @@ const AdminTransformations = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Bu görseli silmek istediğinize emin misiniz?")) return;
+    setConfirmDialog({
+      isOpen: true,
+      text: "Bu görseli silmek istediğinize emin misiniz?",
+      isDestructive: true,
+      onConfirm: async () => {
+        try {
+          const res = await fetch(`${API_URL}/api/admin/transformations/${id}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          const data = await res.json();
 
-    try {
-      const res = await fetch(`${API_URL}/api/admin/transformations/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
+          if (data.success) {
+            showNotif("Görsel başarıyla silindi.");
+            fetchImages();
+          } else {
+            if (res.status === 401 || res.status === 403) handleLogout();
+            showNotif("Silme başarısız: " + data.error, "error");
+          }
+        } catch (err) {
+          console.error(err);
+          showNotif("Silme sırasında hata oluştu.", "error");
         }
-      });
-      const data = await res.json();
-
-      if (data.success) {
-        showNotif("Görsel başarıyla silindi.");
-        fetchImages();
-      } else {
-        if (res.status === 401 || res.status === 403) handleLogout();
-        showNotif("Silme başarısız: " + data.error, "error");
       }
-    } catch (err) {
-      console.error(err);
-      showNotif("Silme sırasında hata oluştu.", "error");
-    }
+    });
   };
 
   const handleShopierSync = async () => {
-    if (!window.confirm("Shopier'deki mevcut ürünleriniz web sitenize kopyalanacaktır. Emin misiniz?")) return;
-    setLoading(true);
-    try {
-      const res = await fetch(`${API_URL}/api/admin/shopier-sync`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if (data.success) {
-        showNotif(`Senkronizasyon Başarılı! ${data.importedCount || 0} yeni ürün eklendi, ${data.deletedCount || 0} eski ürün temizlendi.`);
-        fetchPackages();
-      } else {
-        showNotif("Hata: " + data.error, "error");
+    setConfirmDialog({
+      isOpen: true,
+      text: "Shopier'deki mevcut ürünleriniz web sitenize kopyalanacaktır. Emin misiniz?",
+      isDestructive: false,
+      onConfirm: async () => {
+        setLoading(true);
+        try {
+          const res = await fetch(`${API_URL}/api/admin/shopier-sync`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const data = await res.json();
+          if (data.success) {
+            showNotif(`Senkronizasyon Başarılı! ${data.importedCount || 0} yeni ürün eklendi, ${data.deletedCount || 0} eski ürün temizlendi.`);
+            fetchPackages();
+          } else {
+            showNotif("Hata: " + data.error, "error");
+          }
+        } catch (err) {
+          showNotif("Shopier ile iletişim kurulamadı.", "error");
+        }
+        setLoading(false);
       }
-    } catch (err) {
-      showNotif("Shopier ile iletişim kurulamadı.", "error");
-    }
-    setLoading(false);
+    });
   };
 
   const categoryLabels = {
@@ -626,6 +653,36 @@ const AdminTransformations = () => {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* Custom Confirm Modal */}
+      {confirmDialog.isOpen && (
+        <div className="admin-confirm-overlay">
+          <div className="admin-confirm-modal">
+            <div className="admin-confirm-icon" style={!confirmDialog.isDestructive ? { background: 'rgba(212, 175, 55, 0.1)', color: 'var(--camo-sand)' } : {}}>
+              {confirmDialog.isDestructive ? (
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              ) : (
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              )}
+            </div>
+            <p className="admin-confirm-text">{confirmDialog.text}</p>
+            <div className="admin-confirm-actions">
+              <button className="admin-confirm-btn admin-confirm-cancel" onClick={handleCancelConfirm}>İptal</button>
+              <button 
+                className="admin-confirm-btn admin-confirm-ok" 
+                onClick={handleConfirm}
+                style={!confirmDialog.isDestructive ? { background: 'var(--camo-sand)', color: 'black', borderColor: 'var(--camo-sand)' } : {}}
+              >
+                Onayla
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
