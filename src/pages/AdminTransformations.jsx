@@ -334,6 +334,19 @@ const AdminTransformations = () => {
   if (!token) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center bg-black px-4">
+        {/* Modern Notification Popup for Login */}
+        <div className={`admin-notification ${notif.type} ${notif.show ? 'show' : ''}`} style={{ zIndex: 9999 }}>
+          <div className="notification-icon">
+            {notif.type === 'success' ? '✓' : '!'}
+          </div>
+          <div className="notification-content">
+            <span className="notification-title">
+              {notif.type === 'success' ? 'İŞLEM BAŞARILI' : 'SİSTEM UYARISI'}
+            </span>
+            <span className="notification-text">{notif.text}</span>
+          </div>
+        </div>
+
         <form onSubmit={handleLogin} className="w-full max-w-md relative group flex flex-col gap-4">
           <div className="relative">
             {/* Arkadaki parlama efekti (sadece odaklanınca veya hover'da belirginleşebilir) */}
@@ -371,8 +384,6 @@ const AdminTransformations = () => {
               </svg>
             ) : 'Giriş Yap'}
           </button>
-
-          {message && <p className="absolute -bottom-8 left-0 right-0 text-center text-sm text-red-500 font-medium">{message}</p>}
         </form>
       </div>
     );
