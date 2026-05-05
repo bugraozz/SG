@@ -338,7 +338,7 @@ const AdminTransformations = () => {
           });
           const data = await res.json();
           if (data.success) {
-            showNotif(`Senkronizasyon Başarılı! ${data.importedCount || 0} yeni ürün eklendi, ${data.deletedCount || 0} eski ürün temizlendi.`);
+            showNotif(`Senkronizasyon Başarılı! ${data.importedCount || 0} eklendi, ${data.updatedCount || 0} güncellendi, ${data.deletedCount || 0} silindi.`);
             fetchPackages();
           } else {
             showNotif("Hata: " + data.error, "error");

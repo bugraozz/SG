@@ -710,7 +710,7 @@ app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage')
   }
 });
 
-// Shopier Tam Senkronizasyon (İçe Aktarma ve Silme)
+// Shopier Tam Senkronizasyon (İçe Aktarma, Silme ve Güncelleme)
 app.post('/api/admin/shopier-sync', verifyAdmin, async (req, res) => {
   if (!SHOPIER_APP_TOKEN || SHOPIER_APP_TOKEN === 'API_KEY') {
     return res.status(400).json({ success: false, error: 'Shopier Token yapılandırılmamış.' });
@@ -722,13 +722,18 @@ app.post('/api/admin/shopier-sync', verifyAdmin, async (req, res) => {
     });
     const shopierData = await shopierRes.json();
     
-    // Shopier array dönüyor
-    if (!shopierData || !Array.isArray(shopierData)) {
+    let shopierProducts = [];
+    if (Array.isArray(shopierData)) {
+      shopierProducts = shopierData;
+    } else if (shopierData && Array.isArray(shopierData.data)) {
+      shopierProducts = shopierData.data;
+    } else if (shopierData && Array.isArray(shopierData.items)) {
+      shopierProducts = shopierData.items;
+    } else {
       console.error("Shopier geçersiz yanıt:", shopierData);
-      return res.status(500).json({ success: false, error: 'Shopier API ürünleri getirilemedi.' });
+      return res.status(500).json({ success: false, error: 'Shopier API geçerli ürün listesi döndürmedi. Token yetkilerini kontrol edin.' });
     }
 
-    const shopierProducts = shopierData;
     const shopierIds = shopierProducts.map(p => String(p.id));
 
     // 1. Sitenizde olup Shopier'de OLMAYANLARI sil
@@ -743,37 +748,45 @@ app.post('/api/admin/shopier-sync', verifyAdmin, async (req, res) => {
       }
     }
 
-    // 2. Shopier'de olup sitenizde OLMAYANLARI ekle
+    // 2. Shopier'de olanları Ekle veya GÜNCELLE
     const insertPkg = db.prepare('INSERT INTO packages (id, category, name, price, period, description, features, unavailable, color, btnClass, order_index, shopier_id, stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    const updatePkg = db.prepare('UPDATE packages SET name = ?, price = ?, description = ?, stock = ? WHERE id = ?');
     let importedCount = 0;
+    let updatedCount = 0;
 
     for (const prod of shopierProducts) {
-      // 1. Önce Shopier ID ile kontrol et
+      const pPriceStr = prod.priceData ? prod.priceData.price : (prod.price ? prod.price.price : "1");
+      const pPrice = String(pPriceStr).trim() + "₺";
+      const pStock = prod.stockQuantity !== undefined ? prod.stockQuantity : 999;
+      const pTitle = prod.title || 'İsimsiz';
+      const pDesc = prod.description || '';
+      
+      // Önce Shopier ID ile kontrol et
       let existing = db.prepare('SELECT id FROM packages WHERE shopier_id = ?').get(String(prod.id));
       
-      // 2. Eğer ID ile bulunamadıysa, ismiyle aynı olan ve henüz bağlantısı (shopier_id) olmayan bir paket var mı bak
+      // Eğer ID ile bulunamadıysa, ismiyle aynı olan ve bağlantısı olmayan paket var mı bak
       if (!existing) {
-        existing = db.prepare('SELECT id FROM packages WHERE name = ? AND (shopier_id IS NULL OR shopier_id = "")').get(prod.title);
+        existing = db.prepare('SELECT id FROM packages WHERE name = ? AND (shopier_id IS NULL OR shopier_id = "")').get(pTitle);
         if (existing) {
-          // Bulunduysa bu pakete shopier_id ata ve stoğu güncelle
-          db.prepare('UPDATE packages SET shopier_id = ?, stock = ? WHERE id = ?').run(String(prod.id), prod.stockQuantity !== undefined ? prod.stockQuantity : 999, existing.id);
-          importedCount++; 
+          db.prepare('UPDATE packages SET shopier_id = ?, name = ?, price = ?, description = ?, stock = ? WHERE id = ?').run(String(prod.id), pTitle, pPrice, pDesc, pStock, existing.id);
+          updatedCount++; 
           continue;
         }
       }
 
-      // 3. Hiç bulunamadıysa yeni paket olarak ekle
-      if (!existing) {
-        const pPrice = prod.priceData ? prod.priceData.price + "₺" : (prod.price ? prod.price.price + "₺" : "1₺");
-        const pStock = prod.stockQuantity !== undefined ? prod.stockQuantity : 999;
-        
+      if (existing) {
+        // Mevcut ürünü GÜNCELLE
+        updatePkg.run(pTitle, pPrice, pDesc, pStock, existing.id);
+        updatedCount++;
+      } else {
+        // Yeni ürün olarak EKLE
         insertPkg.run(
           uuidv4(),
           'online', 
-          prod.title || 'İsimsiz', 
+          pTitle, 
           pPrice, 
           'tek sefer', 
-          prod.description || '', 
+          pDesc, 
           JSON.stringify([]), 
           JSON.stringify([]), 
           'var(--camo-mid)', 
@@ -786,7 +799,7 @@ app.post('/api/admin/shopier-sync', verifyAdmin, async (req, res) => {
       }
     }
 
-    res.json({ success: true, importedCount, deletedCount });
+    res.json({ success: true, importedCount, deletedCount, updatedCount });
   } catch (err) {
     console.error("Shopier Sync Error:", err);
     res.status(500).json({ success: false, error: 'Senkronizasyon hatası.' });
