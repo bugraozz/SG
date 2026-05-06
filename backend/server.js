@@ -661,15 +661,21 @@ app.post('/api/admin/shopier-sync', verifyAdmin, async (req, res) => {
         headers: { 'Authorization': `Bearer ${SHOPIER_APP_TOKEN}` }
       });
       const text = await shopierRes.text();
+      console.log(`Shopier API Yanıtı (Sayfa ${currentPage}, Statu ${shopierRes.status}):`, text.substring(0, 200));
+      
       let shopierData;
       try {
         shopierData = JSON.parse(text);
       } catch (err) {
-        console.error("Shopier JSON Parse Hatası (Sayfa " + currentPage + "):", text.substring(0, 300));
+        console.error("Shopier JSON Parse Hatası:", err.message);
         if (currentPage === 1) {
-          return res.status(500).json({ success: false, error: 'Shopier API sunucusu şu an geçersiz bir yanıt veriyor (Rate limit veya Cloudflare engellemesi olabilir). Lütfen birkaç dakika bekleyip tekrar deneyin.' });
+          return res.status(500).json({ 
+            success: false, 
+            error: `Shopier API geçersiz yanıt verdi (Statu: ${shopierRes.status}). Token hatalı olabilir veya çok fazla istek attınız.`,
+            debug: text.substring(0, 100)
+          });
         }
-        break; // If it fails on page 2+, just stop and use what we have
+        break; 
       }
 
       let pageProducts = [];
@@ -697,16 +703,18 @@ app.post('/api/admin/shopier-sync', verifyAdmin, async (req, res) => {
     }
 
     const shopierProducts = allShopierProducts;
-
     const shopierIds = shopierProducts.map(p => String(p.id));
 
-    // 1. Sitenizde olup Shopier'de OLMAYANLARI sil
-    const localPackages = db.prepare('SELECT id, shopier_id FROM packages WHERE shopier_id IS NOT NULL').all();
+    console.log(`Shopier'den ${shopierProducts.length} ürün çekildi. Senkronizasyon başlıyor...`);
+
+    // 1. Sitenizde olup Shopier'de OLMAYANLARI (veya bağlantısı hiç olmayan hayalet verileri) sil
+    const localPackages = db.prepare('SELECT id, shopier_id FROM packages').all();
     let deletedCount = 0;
     const deleteStmt = db.prepare('DELETE FROM packages WHERE id = ?');
 
     for (const pkg of localPackages) {
-      if (!shopierIds.includes(String(pkg.shopier_id))) {
+      // Eğer Shopier ID'si yoksa (Hayalet Veri) VEYA Shopier listesinde artık yoksa sil
+      if (!pkg.shopier_id || !shopierIds.includes(String(pkg.shopier_id))) {
         deleteStmt.run(pkg.id);
         deletedCount++;
       }
