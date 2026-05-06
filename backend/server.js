@@ -637,6 +637,19 @@ app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage')
           publicMediaUrl = `${cleanBase}${backgroundImagePath}`;
         }
 
+        let existingMediaId = null;
+        try {
+          const getRes = await fetch(`https://api.shopier.com/v1/products/${existingPackage.shopier_id}`, {
+            headers: { 'Authorization': `Bearer ${SHOPIER_APP_TOKEN}` }
+          });
+          const getData = await getRes.json();
+          if (getData && getData.media && getData.media.length > 0) {
+            existingMediaId = getData.media[0].id;
+          }
+        } catch (e) {
+          console.error("Mevcut medya ID çekilemedi:", e);
+        }
+
         const shopierRes = await fetch(`https://api.shopier.com/v1/products/${existingPackage.shopier_id}`, {
           method: 'PUT',
           headers: {
@@ -651,7 +664,12 @@ app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage')
             stockQuantity: parsedStock,
             shippingPayer: 'sellerPays',
             media: [
-              {
+              existingMediaId ? {
+                id: existingMediaId,
+                type: "image",
+                url: publicMediaUrl,
+                placement: 1
+              } : {
                 type: "image",
                 url: publicMediaUrl,
                 placement: 1
@@ -717,8 +735,14 @@ app.post('/api/admin/shopier-sync', verifyAdmin, async (req, res) => {
   }
 
   try {
-    const shopierRes = await fetch('https://api.shopier.com/v1/products?limit=100', {
-      headers: { 'Authorization': `Bearer ${SHOPIER_APP_TOKEN}` }
+    // API Caching'i engellemek için url sonuna timestamp ekledik
+    const shopierRes = await fetch(`https://api.shopier.com/v1/products?limit=100&_t=${Date.now()}`, {
+      headers: { 
+        'Authorization': `Bearer ${SHOPIER_APP_TOKEN}`,
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
     });
     const shopierData = await shopierRes.json();
     
