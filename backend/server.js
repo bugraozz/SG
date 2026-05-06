@@ -634,20 +634,22 @@ app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage')
         if (backgroundImagePath) {
           const base = process.env.BASE_URL || 'http://localhost:5000';
           const cleanBase = base.endsWith('/') ? base.slice(0, -1) : base;
-          publicMediaUrl = `${cleanBase}${backgroundImagePath}`;
-        }
-
-        let existingMediaId = null;
         try {
           const getRes = await fetch(`https://api.shopier.com/v1/products/${existingPackage.shopier_id}`, {
             headers: { 'Authorization': `Bearer ${SHOPIER_APP_TOKEN}` }
           });
           const getData = await getRes.json();
+          // Eğer önceden eklenmiş resimler varsa Shopier'de üst üste binmemesi için hepsini silelim
           if (getData && getData.media && getData.media.length > 0) {
-            existingMediaId = getData.media[0].id;
+            for (const m of getData.media) {
+              await fetch(`https://api.shopier.com/v1/products/${existingPackage.shopier_id}/media/${m.id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${SHOPIER_APP_TOKEN}` }
+              });
+            }
           }
         } catch (e) {
-          console.error("Mevcut medya ID çekilemedi:", e);
+          console.error("Mevcut medya silinemedi:", e);
         }
 
         const shopierRes = await fetch(`https://api.shopier.com/v1/products/${existingPackage.shopier_id}`, {
@@ -664,12 +666,7 @@ app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage')
             stockQuantity: parsedStock,
             shippingPayer: 'sellerPays',
             media: [
-              existingMediaId ? {
-                id: existingMediaId,
-                type: "image",
-                url: publicMediaUrl,
-                placement: 1
-              } : {
+              {
                 type: "image",
                 url: publicMediaUrl,
                 placement: 1
@@ -779,10 +776,15 @@ app.post('/api/admin/shopier-sync', verifyAdmin, async (req, res) => {
     let updatedCount = 0;
 
     for (const prod of shopierProducts) {
-      const pPriceStr = prod.priceData ? prod.priceData.price : (prod.price ? prod.price.price : "1");
+      let pPriceStr = "1";
+      if (prod.priceData && prod.priceData.price !== undefined) {
+         pPriceStr = prod.priceData.price;
+      } else if (prod.price !== undefined) {
+         pPriceStr = typeof prod.price === 'object' ? prod.price.price : prod.price;
+      }
       const pPrice = String(pPriceStr).trim() + "₺";
       const pStock = prod.stockQuantity !== undefined ? prod.stockQuantity : 999;
-      const pTitle = prod.title || 'İsimsiz';
+      const pTitle = prod.title || prod.name || 'İsimsiz';
       const pDesc = prod.description || '';
       
       // Önce Shopier ID ile kontrol et
