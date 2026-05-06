@@ -634,6 +634,9 @@ app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage')
         if (backgroundImagePath) {
           const base = process.env.BASE_URL || 'http://localhost:5000';
           const cleanBase = base.endsWith('/') ? base.slice(0, -1) : base;
+          publicMediaUrl = `${cleanBase}${backgroundImagePath}`;
+        }
+
         try {
           const getRes = await fetch(`https://api.shopier.com/v1/products/${existingPackage.shopier_id}`, {
             headers: { 'Authorization': `Bearer ${SHOPIER_APP_TOKEN}` }
