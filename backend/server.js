@@ -752,7 +752,17 @@ app.post('/api/admin/shopier-sync', verifyAdmin, async (req, res) => {
       const shopierRes = await fetch(`https://api.shopier.com/v1/products?limit=50&page=${currentPage}`, {
         headers: { 'Authorization': `Bearer ${SHOPIER_APP_TOKEN}` }
       });
-      const shopierData = await shopierRes.json();
+      const text = await shopierRes.text();
+      let shopierData;
+      try {
+        shopierData = JSON.parse(text);
+      } catch (err) {
+        console.error("Shopier JSON Parse Hatası (Sayfa " + currentPage + "):", text.substring(0, 300));
+        if (currentPage === 1) {
+          return res.status(500).json({ success: false, error: 'Shopier API sunucusu şu an geçersiz bir yanıt veriyor (Rate limit veya Cloudflare engellemesi olabilir). Lütfen birkaç dakika bekleyip tekrar deneyin.' });
+        }
+        break; // If it fails on page 2+, just stop and use what we have
+      }
 
       let pageProducts = [];
       if (Array.isArray(shopierData)) {
