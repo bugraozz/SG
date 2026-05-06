@@ -614,16 +614,19 @@ app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage')
     const previousBackgroundPath = existingPackage.background_image_url || null;
     let backgroundImagePath = previousBackgroundPath;
     let shouldDeletePreviousBackground = false;
+    let isNewImageUploaded = false;
 
     if (req.file) {
       backgroundImagePath = '/uploads/' + req.file.filename;
       shouldDeletePreviousBackground = Boolean(previousBackgroundPath);
+      isNewImageUploaded = true;
     }
 
     const shouldRemoveBackground = removeBackground === true || removeBackground === 'true';
     if (shouldRemoveBackground && !req.file) {
       backgroundImagePath = null;
       shouldDeletePreviousBackground = Boolean(previousBackgroundPath);
+      isNewImageUploaded = true; // Removal also counts as media update
     }
 
     // Shopier API (Personal Access Token) ile ürünü güncelle
@@ -637,22 +640,42 @@ app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage')
           publicMediaUrl = `${cleanBase}${backgroundImagePath}`;
         }
 
-        try {
-          const getRes = await fetch(`https://api.shopier.com/v1/products/${existingPackage.shopier_id}`, {
-            headers: { 'Authorization': `Bearer ${SHOPIER_APP_TOKEN}` }
-          });
-          const getData = await getRes.json();
-          // Eğer önceden eklenmiş resimler varsa Shopier'de üst üste binmemesi için hepsini silelim
-          if (getData && getData.media && getData.media.length > 0) {
-            for (const m of getData.media) {
-              await fetch(`https://api.shopier.com/v1/products/${existingPackage.shopier_id}/media/${m.id}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${SHOPIER_APP_TOKEN}` }
-              });
+        if (isNewImageUploaded) {
+          try {
+            const getRes = await fetch(`https://api.shopier.com/v1/products/${existingPackage.shopier_id}`, {
+              headers: { 'Authorization': `Bearer ${SHOPIER_APP_TOKEN}` }
+            });
+            const getData = await getRes.json();
+            if (getData && getData.media && getData.media.length > 0) {
+              for (const m of getData.media) {
+                await fetch(`https://api.shopier.com/v1/products/${existingPackage.shopier_id}/media/${m.id}`, {
+                  method: 'DELETE',
+                  headers: { 'Authorization': `Bearer ${SHOPIER_APP_TOKEN}` }
+                });
+              }
             }
+          } catch (e) {
+            console.error("Mevcut medya silinemedi:", e);
           }
-        } catch (e) {
-          console.error("Mevcut medya silinemedi:", e);
+        }
+
+        const shopierPayload = {
+          title: name,
+          description: description || name,
+          priceData: { price: numericPrice || 1, currency: 'TRY' },
+          type: 'digital',
+          stockQuantity: parsedStock,
+          shippingPayer: 'sellerPays'
+        };
+
+        if (isNewImageUploaded && publicMediaUrl) {
+          shopierPayload.media = [
+            {
+              type: "image",
+              url: publicMediaUrl,
+              placement: 1
+            }
+          ];
         }
 
         const shopierRes = await fetch(`https://api.shopier.com/v1/products/${existingPackage.shopier_id}`, {
@@ -661,21 +684,7 @@ app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage')
             'Authorization': `Bearer ${SHOPIER_APP_TOKEN}`,
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({
-            title: name,
-            description: description || name,
-            priceData: { price: numericPrice || 1, currency: 'TRY' },
-            type: 'digital',
-            stockQuantity: parsedStock,
-            shippingPayer: 'sellerPays',
-            media: [
-              {
-                type: "image",
-                url: publicMediaUrl,
-                placement: 1
-              }
-            ]
-          })
+          body: JSON.stringify(shopierPayload)
         });
         const shopierData = await shopierRes.json();
         if (!shopierData || !shopierData.id) {
