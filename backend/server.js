@@ -773,12 +773,10 @@ app.post('/api/admin/shopier-sync', verifyAdmin, async (req, res) => {
     let updatedCount = 0;
 
     for (const prod of shopierProducts) {
-      let pPriceStr = "1";
-      if (prod.priceData && prod.priceData.price !== undefined) {
-         pPriceStr = prod.priceData.price;
-      } else if (prod.price !== undefined) {
-         pPriceStr = typeof prod.price === 'object' ? prod.price.price : prod.price;
-      }
+      if (!prod) continue;
+      
+      let pPriceStr = prod?.priceData?.price ?? prod?.price?.price ?? prod?.price;
+      if (pPriceStr === null || pPriceStr === undefined) pPriceStr = "1";
       const pPrice = String(pPriceStr).trim() + "₺";
       const pStock = prod.stockQuantity !== undefined ? prod.stockQuantity : 999;
       const pTitle = prod.title || prod.name || 'İsimsiz';
@@ -825,7 +823,7 @@ app.post('/api/admin/shopier-sync', verifyAdmin, async (req, res) => {
     res.json({ success: true, importedCount, deletedCount, updatedCount });
   } catch (err) {
     console.error("Shopier Sync Error:", err);
-    res.status(500).json({ success: false, error: 'Senkronizasyon hatası.' });
+    res.status(500).json({ success: false, error: 'Senkronizasyon hatası: ' + err.message });
   }
 });
 
