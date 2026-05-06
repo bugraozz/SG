@@ -545,7 +545,7 @@ app.post('/api/admin/packages', verifyAdmin, upload.single('backgroundImage'), a
               {
                 type: "image",
                 url: publicMediaUrl,
-                placement: 0
+                placement: 1
               }
             ]
           })
@@ -672,7 +672,7 @@ app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage')
               {
                 type: "image",
                 url: publicMediaUrl,
-                placement: 0
+                placement: 1
               }
             ]
           })
