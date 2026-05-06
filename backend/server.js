@@ -72,19 +72,8 @@ if (!packageColumns.includes('stock')) {
   db.prepare('ALTER TABLE packages ADD COLUMN stock INTEGER DEFAULT 999').run();
 }
 
-// Başlangıç için varsayılan paketler yoksa DB'ye tohumlama (seed) yap.
+// Başlangıç tohumlama (seed) kaldırıldı. Artık sadece Shopier verileri kullanılacak.
 const packageCount = db.prepare('SELECT COUNT(*) as count FROM packages').get();
-if (packageCount.count === 0) {
-  const defaultPackages = [
-    { category: 'tekli', name: 'Antrenman', badge: '', price: '350₺', period: 'tek sefer', desc: 'Kişiye ve hedefe özel antrenman planlaması iletilir.', features: JSON.stringify(['Kişiye Özel Antrenman Planlaması']), unavailable: JSON.stringify(['Beslenme Planlaması', 'Supplement Planlaması']), color: 'var(--camo-mid)', btnClass: 'pricing-btn', order_index: 1 },
-    { category: 'coklu', name: 'Orta Seviye', badge: 'En Çok Tercih Edilen', price: '750₺', period: 'tek sefer', desc: 'İhtiyacın olan üçlü paket avantajı.', features: JSON.stringify(['Antrenman Planlaması', 'Beslenme Planlaması', 'Supplement Planlaması']), unavailable: JSON.stringify(['Isınma ve Soğuma', 'Uyku Protokolleri']), color: '#ca0d1c', btnClass: 'pricing-btn premium-btn', order_index: 2 },
-    { category: 'online', name: '1 Aylık', badge: '', price: '2.000₺', period: '/ay', desc: 'Birebir takipli çevrimiçi koçluk.', features: JSON.stringify(['Antrenman, Beslenme, Supplement Planı', 'Isınma ve Soğuma Protokolleri', 'Antrenman, Beslenme, Uyku Protokolleri']), unavailable: JSON.stringify([]), color: 'var(--camo-dark)', btnClass: 'pricing-btn', order_index: 3 },
-  ];
-  const insertPkg = db.prepare('INSERT INTO packages (id, category, name, badge, price, period, description, features, unavailable, color, btnClass, order_index, stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-  defaultPackages.forEach(p => {
-    insertPkg.run(uuidv4(), p.category, p.name, p.badge, p.price, p.period, p.desc, p.features, p.unavailable, p.color, p.btnClass, p.order_index, 999);
-  });
-}
 
 // Varsayılan ayarları ekle
 const settingsCount = db.prepare('SELECT COUNT(*) as count FROM settings').get();
@@ -99,89 +88,8 @@ if (settingsCount.count === 0) {
   defaultSettings.forEach(s => insertSetting.run(s.key, s.value));
 }
 
-const msuDefaults = [
-  {
-    category: 'msu',
-    name: '1 Ay',
-    badge: '',
-    price: '1000₺',
-    period: '/paket',
-    desc: 'MSÜ spor mülakatı parkuruna odaklı temel hazırlık programı.',
-    features: JSON.stringify([
-      'Parkur teknikleri ve süre yönetimi',
-      'Kuvvet ve dayanıklılık antrenmanları',
-      'Haftalık ilerleme takibi'
-    ]),
-    unavailable: JSON.stringify([]),
-    color: '#b8862f',
-    btnClass: 'pricing-btn',
-    order_index: 1,
-    background_image_url: null
-  },
-  {
-    category: 'msu',
-    name: '2 Ay',
-    badge: '',
-    price: '2000₺',
-    period: '/paket',
-    desc: 'MSÜ parkur performansını istikrarlı şekilde yükselten orta seviye plan.',
-    features: JSON.stringify([
-      'Parkur süre geliştirme protokolleri',
-      'Tempolu kondisyon ve hız çalışmaları',
-      'Düzenli performans analizi'
-    ]),
-    unavailable: JSON.stringify([]),
-    color: '#c6963d',
-    btnClass: 'pricing-btn',
-    order_index: 2,
-    background_image_url: null
-  },
-  {
-    category: 'msu',
-    name: '3 Ay',
-    badge: 'MSÜ Özel Paket',
-    price: '3000₺',
-    period: '/paket',
-    desc: 'Sınav gününe yönelik tam kapsamlı MSÜ spor mülakatı hazırlık paketi.',
-    features: JSON.stringify([
-      'Kişisel parkur stratejisi',
-      'Hız, çeviklik ve dayanıklılık döngüsü',
-      'Deneme simülasyonları ve geri bildirim'
-    ]),
-    unavailable: JSON.stringify([]),
-    color: '#d0a040',
-    btnClass: 'pricing-btn premium-btn',
-    order_index: 3,
-    background_image_url: null
-  }
-];
-
+// MSÜ paketleri otomatik ekleme mantığı kaldırıldı.
 const findMsuPackageStmt = db.prepare('SELECT id FROM packages WHERE category = ? AND name = ? LIMIT 1');
-const insertMsuPackageStmt = db.prepare(`
-  INSERT INTO packages (id, category, name, badge, price, period, description, features, unavailable, color, btnClass, order_index, background_image_url)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-`);
-
-msuDefaults.forEach((pkg) => {
-  const exists = findMsuPackageStmt.get(pkg.category, pkg.name);
-  if (!exists) {
-    insertMsuPackageStmt.run(
-      uuidv4(),
-      pkg.category,
-      pkg.name,
-      pkg.badge,
-      pkg.price,
-      pkg.period,
-      pkg.desc,
-      pkg.features,
-      pkg.unavailable,
-      pkg.color,
-      pkg.btnClass,
-      pkg.order_index,
-      pkg.background_image_url
-    );
-  }
-});
 
 const app = express();
 
