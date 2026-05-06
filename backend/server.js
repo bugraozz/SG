@@ -519,7 +519,7 @@ app.post('/api/admin/packages', verifyAdmin, upload.single('backgroundImage'), a
     // Shopier API (Personal Access Token) ile ürünü Shopier mağazasında yarat
     if (SHOPIER_APP_TOKEN && SHOPIER_APP_TOKEN !== 'API_KEY') {
       try {
-        const numericPrice = parseFloat(price.replace(/[^0-9,.]/g, '').replace(/\./g, '').replace(',', '.'));
+        const numericPrice = price ? parseFloat(price.replace(/[^0-9,.]/g, '').replace(/\./g, '').replace(',', '.')) : 1;
         let publicMediaUrl = "https://dummyimage.com/600x600/111/d4af37.png";
         if (backgroundImagePath) {
           const base = process.env.BASE_URL || 'http://localhost:5000';
@@ -782,12 +782,10 @@ app.post('/api/admin/shopier-sync', verifyAdmin, async (req, res) => {
     let updatedCount = 0;
 
     for (const prod of shopierProducts) {
-      let pPriceStr = "1";
-      if (prod.priceData && prod.priceData.price !== undefined) {
-        pPriceStr = prod.priceData.price;
-      } else if (prod.price !== undefined) {
-        pPriceStr = typeof prod.price === 'object' ? prod.price.price : prod.price;
-      }
+      if (!prod) continue;
+      
+      let pPriceStr = prod?.priceData?.price ?? prod?.price?.price ?? prod?.price;
+      if (pPriceStr === null || pPriceStr === undefined) pPriceStr = "1";
       const pPrice = String(pPriceStr).trim() + "₺";
       const pStock = prod.stockQuantity !== undefined ? prod.stockQuantity : 999;
       const pTitle = prod.title || prod.name || 'İsimsiz';
