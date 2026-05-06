@@ -744,22 +744,41 @@ app.post('/api/admin/shopier-sync', verifyAdmin, async (req, res) => {
   }
 
   try {
-    const shopierRes = await fetch('https://api.shopier.com/v1/products?limit=100', {
-      headers: { 'Authorization': `Bearer ${SHOPIER_APP_TOKEN}` }
-    });
-    const shopierData = await shopierRes.json();
+    let allShopierProducts = [];
+    let currentPage = 1;
+    let hasMore = true;
 
-    let shopierProducts = [];
-    if (Array.isArray(shopierData)) {
-      shopierProducts = shopierData;
-    } else if (shopierData && Array.isArray(shopierData.data)) {
-      shopierProducts = shopierData.data;
-    } else if (shopierData && Array.isArray(shopierData.items)) {
-      shopierProducts = shopierData.items;
-    } else {
-      console.error("Shopier geçersiz yanıt:", shopierData);
-      return res.status(500).json({ success: false, error: 'Shopier API geçerli ürün listesi döndürmedi. Token yetkilerini kontrol edin.' });
+    while (hasMore) {
+      const shopierRes = await fetch(`https://api.shopier.com/v1/products?limit=50&page=${currentPage}`, {
+        headers: { 'Authorization': `Bearer ${SHOPIER_APP_TOKEN}` }
+      });
+      const shopierData = await shopierRes.json();
+
+      let pageProducts = [];
+      if (Array.isArray(shopierData)) {
+        pageProducts = shopierData;
+      } else if (shopierData && Array.isArray(shopierData.data)) {
+        pageProducts = shopierData.data;
+      } else if (shopierData && Array.isArray(shopierData.items)) {
+        pageProducts = shopierData.items;
+      } else {
+        if (currentPage === 1) {
+          console.error("Shopier geçersiz yanıt:", shopierData);
+          return res.status(500).json({ success: false, error: 'Shopier API geçerli ürün listesi döndürmedi. Token yetkilerini kontrol edin.' });
+        }
+        break; // Stop paginating if subsequent pages are invalid
+      }
+
+      allShopierProducts = allShopierProducts.concat(pageProducts);
+
+      if (pageProducts.length < 50) {
+        hasMore = false;
+      } else {
+        currentPage++;
+      }
     }
+
+    const shopierProducts = allShopierProducts;
 
     const shopierIds = shopierProducts.map(p => String(p.id));
 
