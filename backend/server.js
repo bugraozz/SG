@@ -739,7 +739,7 @@ app.post('/api/admin/shopier-sync', verifyAdmin, async (req, res) => {
       headers: { 'Authorization': `Bearer ${SHOPIER_APP_TOKEN}` }
     });
     const shopierData = await shopierRes.json();
-    
+
     let shopierProducts = [];
     if (Array.isArray(shopierData)) {
       shopierProducts = shopierData;
@@ -758,7 +758,7 @@ app.post('/api/admin/shopier-sync', verifyAdmin, async (req, res) => {
     const localPackages = db.prepare('SELECT id, shopier_id FROM packages WHERE shopier_id IS NOT NULL').all();
     let deletedCount = 0;
     const deleteStmt = db.prepare('DELETE FROM packages WHERE id = ?');
-    
+
     for (const pkg of localPackages) {
       if (!shopierIds.includes(String(pkg.shopier_id))) {
         deleteStmt.run(pkg.id);
@@ -773,24 +773,26 @@ app.post('/api/admin/shopier-sync', verifyAdmin, async (req, res) => {
     let updatedCount = 0;
 
     for (const prod of shopierProducts) {
-      if (!prod) continue;
-      
-      let pPriceStr = prod?.priceData?.price ?? prod?.price?.price ?? prod?.price;
-      if (pPriceStr === null || pPriceStr === undefined) pPriceStr = "1";
+      let pPriceStr = "1";
+      if (prod.priceData && prod.priceData.price !== undefined) {
+        pPriceStr = prod.priceData.price;
+      } else if (prod.price !== undefined) {
+        pPriceStr = typeof prod.price === 'object' ? prod.price.price : prod.price;
+      }
       const pPrice = String(pPriceStr).trim() + "₺";
       const pStock = prod.stockQuantity !== undefined ? prod.stockQuantity : 999;
       const pTitle = prod.title || prod.name || 'İsimsiz';
       const pDesc = prod.description || '';
-      
+
       // Önce Shopier ID ile kontrol et
       let existing = db.prepare('SELECT id FROM packages WHERE shopier_id = ?').get(String(prod.id));
-      
+
       // Eğer ID ile bulunamadıysa, ismiyle aynı olan ve bağlantısı olmayan paket var mı bak
       if (!existing) {
         existing = db.prepare('SELECT id FROM packages WHERE name = ? AND (shopier_id IS NULL OR shopier_id = "")').get(pTitle);
         if (existing) {
           db.prepare('UPDATE packages SET shopier_id = ?, name = ?, price = ?, description = ?, stock = ? WHERE id = ?').run(String(prod.id), pTitle, pPrice, pDesc, pStock, existing.id);
-          updatedCount++; 
+          updatedCount++;
           continue;
         }
       }
@@ -803,15 +805,15 @@ app.post('/api/admin/shopier-sync', verifyAdmin, async (req, res) => {
         // Yeni ürün olarak EKLE
         insertPkg.run(
           uuidv4(),
-          'online', 
-          pTitle, 
-          pPrice, 
-          'tek sefer', 
-          pDesc, 
-          JSON.stringify([]), 
-          JSON.stringify([]), 
-          'var(--camo-mid)', 
-          'pricing-btn', 
+          'online',
+          pTitle,
+          pPrice,
+          'tek sefer',
+          pDesc,
+          JSON.stringify([]),
+          JSON.stringify([]),
+          'var(--camo-mid)',
+          'pricing-btn',
           0,
           String(prod.id),
           pStock
