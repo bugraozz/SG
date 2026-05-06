@@ -544,8 +544,7 @@ app.post('/api/admin/packages', verifyAdmin, upload.single('backgroundImage'), a
             media: [
               {
                 type: "image",
-                url: publicMediaUrl,
-                placement: 1
+                url: publicMediaUrl
               }
             ]
           })
@@ -671,8 +670,7 @@ app.put('/api/admin/packages/:id', verifyAdmin, upload.single('backgroundImage')
             media: [
               {
                 type: "image",
-                url: publicMediaUrl,
-                placement: 1
+                url: publicMediaUrl
               }
             ]
           })
@@ -735,14 +733,8 @@ app.post('/api/admin/shopier-sync', verifyAdmin, async (req, res) => {
   }
 
   try {
-    // API Caching'i engellemek için url sonuna timestamp ekledik
-    const shopierRes = await fetch(`https://api.shopier.com/v1/products?limit=100&_t=${Date.now()}`, {
-      headers: { 
-        'Authorization': `Bearer ${SHOPIER_APP_TOKEN}`,
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-      }
+    const shopierRes = await fetch('https://api.shopier.com/v1/products?limit=100', {
+      headers: { 'Authorization': `Bearer ${SHOPIER_APP_TOKEN}` }
     });
     const shopierData = await shopierRes.json();
     
