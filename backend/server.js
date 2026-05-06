@@ -662,20 +662,20 @@ app.post('/api/admin/shopier-sync', verifyAdmin, async (req, res) => {
       });
       const text = await shopierRes.text();
       console.log(`Shopier API Yanıtı (Sayfa ${currentPage}, Statu ${shopierRes.status}):`, text.substring(0, 200));
-      
+
       let shopierData;
       try {
         shopierData = JSON.parse(text);
       } catch (err) {
         console.error("Shopier JSON Parse Hatası:", err.message);
         if (currentPage === 1) {
-          return res.status(500).json({ 
-            success: false, 
+          return res.status(500).json({
+            success: false,
             error: `Shopier API geçersiz yanıt verdi (Statu: ${shopierRes.status}). Token hatalı olabilir veya çok fazla istek attınız.`,
             debug: text.substring(0, 100)
           });
         }
-        break; 
+        break;
       }
 
       let pageProducts = [];
@@ -728,7 +728,7 @@ app.post('/api/admin/shopier-sync', verifyAdmin, async (req, res) => {
 
     for (const prod of shopierProducts) {
       if (!prod) continue;
-      
+
       let pPriceStr = prod?.priceData?.price ?? prod?.price?.price ?? prod?.price;
       if (pPriceStr === null || pPriceStr === undefined) pPriceStr = "1";
       const pPrice = String(pPriceStr).trim() + "₺";
