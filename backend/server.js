@@ -660,6 +660,18 @@ app.post('/api/admin/shopier-sync', verifyAdmin, async (req, res) => {
       const shopierRes = await fetch(`https://api.shopier.com/v1/products?limit=50&page=${currentPage}`, {
         headers: { 'Authorization': `Bearer ${SHOPIER_APP_TOKEN}` }
       });
+
+      // Token geçersiz veya iptal edilmişse net hata döndür
+      if (shopierRes.status === 401 || shopierRes.status === 403) {
+        const errBody = await shopierRes.text();
+        console.error(`Shopier API Yetki Hatası (${shopierRes.status}):`, errBody);
+        return res.status(400).json({
+          success: false,
+          error: `Shopier API erişim reddetti (${shopierRes.status}). Token iptal edilmiş veya geçersiz olabilir. Shopier panelinden yeni bir "Kişisel Erişim Anahtarı" oluşturup .env dosyasındaki SHOPIER_APP_TOKEN değerini güncellemeniz gerekiyor.`,
+          action: 'TOKEN_RENEWAL_REQUIRED'
+        });
+      }
+
       const text = await shopierRes.text();
       console.log(`Shopier API Yanıtı (Sayfa ${currentPage}, Statu ${shopierRes.status}):`, text.substring(0, 200));
 
