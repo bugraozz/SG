@@ -147,4 +147,11 @@
   .why-cards-grid {
     grid-template-columns: 1fr;
   }
+  .why-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+  .why-card::before {
+    display: none;
+  }
 }

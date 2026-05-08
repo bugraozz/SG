@@ -55,27 +55,29 @@ const PricingSection = () => {
         { y: 0, opacity: 1, scale: 1, duration: 1.2, ease: "expo.out", stagger: 0.15 }
       );
 
-      // 3D tilt effect on hover
-      const cards = document.querySelectorAll('.pricing-card');
-      cards.forEach(card => {
-        card.addEventListener('mousemove', (e) => {
-          const rect = card.getBoundingClientRect();
-          const x = (e.clientX - rect.left) / rect.width - 0.5;
-          const y = (e.clientY - rect.top) / rect.height - 0.5;
-          gsap.to(card, {
-            rotateY: x * 8,
-            rotateX: -y * 8,
-            duration: 0.3,
-            ease: "power2.out",
-            transformPerspective: 800,
+      // 3D tilt effect on hover - SADECE BİLGİSAYARLARDA (Performans için)
+      if (window.innerWidth > 768) {
+        const cards = document.querySelectorAll('.pricing-card');
+        cards.forEach(card => {
+          card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width - 0.5;
+            const y = (e.clientY - rect.top) / rect.height - 0.5;
+            gsap.to(card, {
+              rotateY: x * 8,
+              rotateX: -y * 8,
+              duration: 0.3,
+              ease: "power2.out",
+              transformPerspective: 800,
+            });
+          });
+          card.addEventListener('mouseleave', () => {
+            gsap.to(card, {
+              rotateY: 0, rotateX: 0, duration: 0.5, ease: "elastic.out(1, 0.5)"
+            });
           });
         });
-        card.addEventListener('mouseleave', () => {
-          gsap.to(card, {
-            rotateY: 0, rotateX: 0, duration: 0.5, ease: "elastic.out(1, 0.5)"
-          });
-        });
-      });
+      }
     }, sectionRef);
 
     return () => ctx.revert();

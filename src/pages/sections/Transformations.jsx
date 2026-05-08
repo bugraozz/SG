@@ -85,7 +85,7 @@ const Transformations = () => {
 
               <div className="tf-main-view">
                 <div className="tf-image-wrapper">
-                  <img src={getImageUrl(currentImage.image_url)} alt="Transformation Before After" className="tf-main-image" />
+                  <img loading="lazy" src={getImageUrl(currentImage.image_url)} alt="Transformation Before After" className="tf-main-image" />
                   <div className="tf-counter">
                     <span className="tf-current">{currentIndex + 1}</span> / {images.length}
                   </div>
@@ -104,7 +104,7 @@ const Transformations = () => {
                    className={`tf-thumbnail ${idx === currentIndex ? 'active' : ''}`}
                    onClick={() => setCurrentIndex(idx)}
                  >
-                   <img src={getImageUrl(img.image_url)} alt="thumb" />
+                   <img loading="lazy" src={getImageUrl(img.image_url)} alt="thumb" />
                  </div>
               ))}
             </div>
