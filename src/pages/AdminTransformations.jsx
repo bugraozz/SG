@@ -161,7 +161,7 @@ const AdminTransformations = () => {
     formData.append('category', pkgForm.category);
     formData.append('name', pkgForm.name);
     formData.append('badge', pkgForm.badge || '');
-    
+
     // Fiyatı formatla: Sadece rakam varsa sonuna ₺ ekle
     let formattedPrice = pkgForm.price.trim();
     if (formattedPrice && !formattedPrice.endsWith('₺')) {
@@ -674,8 +674,8 @@ const AdminTransformations = () => {
             <p className="admin-confirm-text">{confirmDialog.text}</p>
             <div className="admin-confirm-actions">
               <button className="admin-confirm-btn admin-confirm-cancel" onClick={handleCancelConfirm}>İptal</button>
-              <button 
-                className="admin-confirm-btn admin-confirm-ok" 
+              <button
+                className="admin-confirm-btn admin-confirm-ok"
                 onClick={handleConfirm}
                 style={!confirmDialog.isDestructive ? { background: 'var(--camo-sand)', color: 'black', borderColor: 'var(--camo-sand)' } : {}}
               >

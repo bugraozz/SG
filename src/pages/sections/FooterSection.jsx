@@ -64,12 +64,17 @@ const FooterSection = () => {
 
           <div className="footer-links-group">
             <div className="footer-col">
-              <h4 className="footer-col-title">Hızlı Erişim</h4>
+              <h4 className="footer-col-title">İletişim</h4>
               <ul className="footer-col-links">
-                <li><a href="#top" onClick={(e) => scrollToSection(e, 'top')}>Anasayfa</a></li>
-                <li><a href="#hizmetler" onClick={(e) => scrollToSection(e, 'hizmetler')}>Hizmetler</a></li>
-                <li><a href="#donusum" onClick={(e) => scrollToSection(e, 'donusum')}>Dönüşüm</a></li>
-                <li><a href="#paketler" onClick={(e) => scrollToSection(e, 'paketler')}>Paketler</a></li>
+                <li>
+                  <a href="mailto:info@serhatgundar.com" className="footer-email-link">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '8px', verticalAlign: 'middle', opacity: 0.7}}>
+                      <rect x="2" y="4" width="20" height="16" rx="2" />
+                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                    </svg>
+                    info@serhatgundar.com
+                  </a>
+                </li>
               </ul>
             </div>
 
@@ -77,7 +82,6 @@ const FooterSection = () => {
               <h4 className="footer-col-title">Destek</h4>
               <ul className="footer-col-links">
                 <li><a href="#sss" onClick={(e) => scrollToSection(e, 'sss')}>SSS</a></li>
-                <li><a href="#">İletişim</a></li>
                 <li><Link to="/gizlilik-politikasi">Gizlilik Politikası</Link></li>
                 <li><Link to="/kullanim-kosullari">Kullanım Koşulları</Link></li>
               </ul>
@@ -113,6 +117,7 @@ const FooterSection = () => {
           <p className="footer-copyright">
             © 2026 Serhat Gündar. Tüm hakları saklıdır.
           </p>
+
           
           <button className="back-to-top" onClick={scrollToTop}>
             ↑ Yukarı Dön
