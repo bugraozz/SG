@@ -180,6 +180,7 @@
 
   .advantage-card-inner {
     min-height: 280px;
+    animation: none !important; /* Disable floating animation on mobile */
   }
 }
 
