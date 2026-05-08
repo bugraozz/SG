@@ -9,23 +9,24 @@ const HeroSection = () => {
   useEffect(() => {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+      const isMobile = window.innerWidth <= 768;
 
       tl.fromTo(".indirim-wrapper",
-        { y: 30, opacity: 0 },
+        { y: isMobile ? 0 : 30, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.8, delay: 0.3 }
       )
         .fromTo(".hero-title-line",
-          { y: 80, opacity: 0 },
+          { y: isMobile ? 0 : 80, opacity: 0 },
           { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: "expo.out" },
           "-=0.5"
         )
         .fromTo(".hero-subtitle",
-          { y: 30, opacity: 0 },
+          { y: isMobile ? 0 : 30, opacity: 0 },
           { y: 0, opacity: 1, duration: 0.8 },
           "-=0.5"
         )
         .fromTo(".hero-cta-group",
-          { y: 30, opacity: 0 },
+          { y: isMobile ? 0 : 30, opacity: 0 },
           { y: 0, opacity: 1, duration: 0.8 },
           "-=0.4"
         );

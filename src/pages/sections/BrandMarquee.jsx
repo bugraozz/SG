@@ -53,6 +53,8 @@ const BrandMarquee = () => {
                 alt={logo.alt}
                 className="sponsor-logo"
                 loading="lazy"
+                width="150"
+                height="50"
               />
             </a>
           ))}

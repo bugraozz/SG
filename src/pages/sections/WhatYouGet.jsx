@@ -10,23 +10,25 @@ const WhatYouGet = () => {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.fromTo(".wyg-header > *",
-        { y: 40, opacity: 0 },
-        {
-          y: 0, opacity: 1, duration: 1, ease: "expo.out", stagger: 0.15,
-          scrollTrigger: { trigger: sectionRef.current, start: "top 75%", toggleActions: "play none none none", once: true }
-        }
-      );
-
       const isMobile = window.innerWidth <= 768;
 
-      gsap.fromTo(".wyg-item",
-        { x: isMobile ? -20 : -60, opacity: 0 },
-        {
-          x: 0, opacity: 1, duration: 1, ease: "expo.out", stagger: isMobile ? 0.1 : 0.15,
-          scrollTrigger: { trigger: ".wyg-list", start: "top 85%", toggleActions: "play none none none", once: true }
-        }
-      );
+      if (!isMobile) {
+        gsap.fromTo(".wyg-header > *",
+          { y: 40, opacity: 0 },
+          {
+            y: 0, opacity: 1, duration: 1, ease: "expo.out", stagger: 0.15,
+            scrollTrigger: { trigger: sectionRef.current, start: "top 75%", toggleActions: "play none none none", once: true }
+          }
+        );
+
+        gsap.fromTo(".wyg-item",
+          { x: -60, opacity: 0 },
+          {
+            x: 0, opacity: 1, duration: 1, ease: "expo.out", stagger: 0.15,
+            scrollTrigger: { trigger: ".wyg-list", start: "top 85%", toggleActions: "play none none none", once: true }
+          }
+        );
+      }
     }, sectionRef);
 
     return () => ctx.revert();
