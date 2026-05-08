@@ -143,7 +143,7 @@ const PricingSection = () => {
           </button>
         </div>
 
-        <div className={`pricing-grid ${activeTab === 'online' ? 'grid-4' : ''}`}>
+        <div className={`pricing-grid ${activeTab === 'online' || activeTab === 'msu' ? 'grid-4' : ''}`}>
           {currentPlans.map((plan, i) => {
             const backgroundImageUrl = resolvePackageImageUrl(plan.background_image_url);
             const cardStyle = {
