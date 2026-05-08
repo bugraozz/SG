@@ -151,4 +151,14 @@
     display: none;
     /* Hide index on phone */
   }
+
+  .wyg-item:hover {
+    transform: none;
+    box-shadow: none;
+    background: transparent;
+  }
+  
+  .wyg-item:hover .wyg-arrow {
+    transform: none;
+  }
 }

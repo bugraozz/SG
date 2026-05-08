@@ -18,11 +18,13 @@ const WhatYouGet = () => {
         }
       );
 
+      const isMobile = window.innerWidth <= 768;
+
       gsap.fromTo(".wyg-item",
-        { x: -60, opacity: 0 },
+        { x: isMobile ? -20 : -60, opacity: 0 },
         {
-          x: 0, opacity: 1, duration: 1.2, ease: "expo.out", stagger: 0.15,
-          scrollTrigger: { trigger: ".wyg-list", start: "top 80%", toggleActions: "play none none none", once: true }
+          x: 0, opacity: 1, duration: 1, ease: "expo.out", stagger: isMobile ? 0.1 : 0.15,
+          scrollTrigger: { trigger: ".wyg-list", start: "top 85%", toggleActions: "play none none none", once: true }
         }
       );
     }, sectionRef);

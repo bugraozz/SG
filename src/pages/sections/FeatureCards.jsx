@@ -34,11 +34,13 @@ const FeatureCards = () => {
         }
       );
 
+      const isMobile = window.innerWidth <= 768;
+
       gsap.fromTo(".why-card",
-        { y: 80, opacity: 0, scale: 0.95 },
+        { y: isMobile ? 30 : 60, opacity: 0 },
         {
-          y: 0, opacity: 1, scale: 1, duration: 1.2, ease: "expo.out", stagger: 0.15,
-          scrollTrigger: { trigger: ".why-cards-grid", start: "top 80%", toggleActions: "play none none none", once: true }
+          y: 0, opacity: 1, duration: 1, ease: "expo.out", stagger: isMobile ? 0.1 : 0.15,
+          scrollTrigger: { trigger: ".why-cards-grid", start: "top 85%", toggleActions: "play none none none", once: true }
         }
       );
 
