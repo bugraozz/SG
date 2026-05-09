@@ -11,34 +11,30 @@ const HeroCardsSection = () => {
   useEffect(() => {
     const isMobile = window.innerWidth <= 768;
 
+    if (isMobile) {
+      // Mobilde GSAP tamamen iptal, inline style ile çözüldü (CSS transition çakışmasını engeller)
+      return;
+    }
+
     const ctx = gsap.context(() => {
-      if (isMobile) {
-        // Mobilde performans için animasyon iptal ediliyor, direkt son halini alıyor
-        gsap.set('.hero-cards-item', {
+      gsap.fromTo(
+        '.hero-cards-item',
+        { y: 90, opacity: 0, rotation: 0 },
+        {
           y: 0,
           opacity: 1,
-          rotation: (i, el) => parseFloat(el.dataset.rotation)
-        });
-      } else {
-        gsap.fromTo(
-          '.hero-cards-item',
-          { y: 90, opacity: 0, rotation: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            rotation: (i, el) => parseFloat(el.dataset.rotation),
-            duration: 1,
-            stagger: 0.12,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: 'top 88%',
-              toggleActions: 'play none none none',
-              once: true,
-            },
-          }
-        );
-      }
+          rotation: (i, el) => parseFloat(el.dataset.rotation),
+          duration: 1,
+          stagger: 0.12,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 88%',
+            toggleActions: 'play none none none',
+            once: true,
+          },
+        }
+      );
     }, sectionRef);
 
     return () => ctx.revert();
@@ -55,25 +51,31 @@ const HeroCardsSection = () => {
     <section className="hero-cards-section" ref={sectionRef}>
       <div className="container">
         <div className="hero-cards-grid">
-          {features.map((f, i) => (
-            <div
-              key={i}
-              className="hero-cards-item"
-              style={{ '--card-color': f.color }}
-              data-rotation={f.rotation}
-            >
-              {f.badge && <div className="hero-cards-badge">{f.badge}</div>}
-              <span className="hero-cards-tag">{f.tag}</span>
-              <h3 className="hero-cards-title">{f.title}</h3>
-              <p className="hero-cards-desc">{f.desc}</p>
+          {features.map((f, i) => {
+            const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+            return (
+              <div
+                key={i}
+                className="hero-cards-item"
+                style={{ 
+                  '--card-color': f.color,
+                  transform: isMobile ? `rotate(${f.rotation}deg)` : undefined
+                }}
+                data-rotation={f.rotation}
+              >
+                {f.badge && <div className="hero-cards-badge">{f.badge}</div>}
+                <span className="hero-cards-tag">{f.tag}</span>
+                <h3 className="hero-cards-title">{f.title}</h3>
+                <p className="hero-cards-desc">{f.desc}</p>
 
-              <div className="hero-cards-graphics">
-                <div className="hero-cards-shape hero-cards-shape-1"></div>
-                <div className="hero-cards-shape hero-cards-shape-2"></div>
-                <div className="hero-cards-shape hero-cards-shape-3"></div>
+                <div className="hero-cards-graphics">
+                  <div className="hero-cards-shape hero-cards-shape-1"></div>
+                  <div className="hero-cards-shape hero-cards-shape-2"></div>
+                  <div className="hero-cards-shape hero-cards-shape-3"></div>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

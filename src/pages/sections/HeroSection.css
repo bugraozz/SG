@@ -275,6 +275,13 @@
 
 }
 
+@media (max-width: 768px) {
+  .hero-section::before {
+    animation: none !important;
+    filter: grayscale(40%) !important; /* contrast filtresi kaldırıldı, sadece hafif siyah beyaz */
+  }
+}
+
 @media (max-width: 640px) {
   .hero-main-grid {
     min-height: auto;
