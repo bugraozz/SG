@@ -7,30 +7,37 @@ const HeroSection = () => {
   const heroRef = useRef(null);
 
   useEffect(() => {
+    const isMobile = window.innerWidth <= 768;
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
-      const isMobile = window.innerWidth <= 768;
+      if (isMobile) {
+        // Mobilde donmayı önlemek için Hero açılış animasyonunu tamamen kaldırıyoruz
+        gsap.set([".indirim-wrapper", ".hero-title-line", ".hero-subtitle", ".hero-cta-group"], {
+          y: 0,
+          opacity: 1
+        });
+      } else {
+        const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
 
-      tl.fromTo(".indirim-wrapper",
-        { y: isMobile ? 0 : 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.8, delay: 0.3 }
-      )
-        .fromTo(".hero-title-line",
-          { y: isMobile ? 0 : 80, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: "expo.out" },
-          "-=0.5"
+        tl.fromTo(".indirim-wrapper",
+          { y: 30, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.8, delay: 0.3 }
         )
-        .fromTo(".hero-subtitle",
-          { y: isMobile ? 0 : 30, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.8 },
-          "-=0.5"
-        )
-        .fromTo(".hero-cta-group",
-          { y: isMobile ? 0 : 30, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.8 },
-          "-=0.4"
-        );
-
+          .fromTo(".hero-title-line",
+            { y: 80, opacity: 0 },
+            { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: "expo.out" },
+            "-=0.5"
+          )
+          .fromTo(".hero-subtitle",
+            { y: 30, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.8 },
+            "-=0.5"
+          )
+          .fromTo(".hero-cta-group",
+            { y: 30, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.8 },
+            "-=0.4"
+          );
+      }
     }, heroRef);
 
     return () => ctx.revert();

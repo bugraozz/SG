@@ -9,25 +9,36 @@ const HeroCardsSection = () => {
   const sectionRef = useRef(null);
 
   useEffect(() => {
+    const isMobile = window.innerWidth <= 768;
+
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        '.hero-cards-item',
-        { y: 90, opacity: 0, rotation: 0 },
-        {
+      if (isMobile) {
+        // Mobilde performans için animasyon iptal ediliyor, direkt son halini alıyor
+        gsap.set('.hero-cards-item', {
           y: 0,
           opacity: 1,
-          rotation: (i, el) => parseFloat(el.dataset.rotation),
-          duration: 1,
-          stagger: 0.12,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 88%',
-            toggleActions: 'play none none none',
-            once: true,
-          },
-        }
-      );
+          rotation: (i, el) => parseFloat(el.dataset.rotation)
+        });
+      } else {
+        gsap.fromTo(
+          '.hero-cards-item',
+          { y: 90, opacity: 0, rotation: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            rotation: (i, el) => parseFloat(el.dataset.rotation),
+            duration: 1,
+            stagger: 0.12,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: 'top 88%',
+              toggleActions: 'play none none none',
+              once: true,
+            },
+          }
+        );
+      }
     }, sectionRef);
 
     return () => ctx.revert();
