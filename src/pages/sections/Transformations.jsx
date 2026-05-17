@@ -14,18 +14,33 @@ const Transformations = () => {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/transformations`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.data.length > 0) {
-          setImages(data.data);
-        }
-        setLoaded(true);
-      })
-      .catch(err => {
-        console.log("DB bağlanamadı.", err);
-        setLoaded(true);
-      });
+    const fetchTransformations = () => {
+      fetch(`${API_URL}/api/transformations`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.data.length > 0) {
+            setImages(data.data);
+          }
+          setLoaded(true);
+        })
+        .catch(err => {
+          console.log("DB bağlanamadı.", err);
+          setLoaded(true);
+        });
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        fetchTransformations();
+        observer.disconnect();
+      }
+    }, { rootMargin: '300px' });
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {

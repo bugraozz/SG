@@ -12,6 +12,9 @@
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
     "@fontsource-variable/geist": "^5.2.8",
+    "@fontsource/black-ops-one": "^5.2.8",
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/oswald": "^5.2.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "formik": "^2.4.9",

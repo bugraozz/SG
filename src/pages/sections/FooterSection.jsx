@@ -24,7 +24,23 @@ const FooterSection = () => {
         console.error("Footer ayarları çekilemedi:", err);
       }
     };
-    fetchSettings();
+
+    const footerRef = document.querySelector('.footer-section');
+    if (!footerRef) {
+      fetchSettings();
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        fetchSettings();
+        observer.disconnect();
+      }
+    }, { rootMargin: '300px' });
+
+    observer.observe(footerRef);
+
+    return () => observer.disconnect();
   }, []);
 
   const scrollToSection = (e, sectionId) => {

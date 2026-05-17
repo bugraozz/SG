@@ -16,13 +16,12 @@ const PricingSection = () => {
   const [loadingPackages, setLoadingPackages] = useState(true);
 
   useEffect(() => {
-    // Fetch packages from backend
+    // Fetch packages from backend only when section is near viewport
     const fetchPackages = async () => {
       try {
         const res = await fetch(`${API_URL}/api/packages`);
         const json = await res.json();
         if (json.success) {
-          // backend'den gelen format { tekli: [...], coklu: [...], online: [...] } şeklinde
           setAllPlans({ tekli: [], coklu: [], online: [], msu: [], ...(json.data || {}) });
         }
       } catch (err) {
@@ -31,7 +30,19 @@ const PricingSection = () => {
         setLoadingPackages(false);
       }
     };
-    fetchPackages();
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        fetchPackages();
+        observer.disconnect();
+      }
+    }, { rootMargin: '300px' }); // Load when 300px away from viewport
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
