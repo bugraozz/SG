@@ -51,15 +51,15 @@ const HeroCardsSection = () => {
     <section className="hero-cards-section" ref={sectionRef}>
       <div className="container">
         <div className="hero-cards-grid">
-          {features.map((f, i) => {
-            const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
-            return (
+          {(() => {
+            const isMobileView = typeof window !== 'undefined' && window.innerWidth <= 768;
+            return features.map((f, i) => (
               <div
                 key={i}
                 className="hero-cards-item"
                 style={{ 
                   '--card-color': f.color,
-                  transform: isMobile ? `rotate(${f.rotation}deg)` : undefined
+                  transform: isMobileView ? `rotate(${f.rotation}deg)` : undefined
                 }}
                 data-rotation={f.rotation}
               >
@@ -74,8 +74,8 @@ const HeroCardsSection = () => {
                   <div className="hero-cards-shape hero-cards-shape-3"></div>
                 </div>
               </div>
-            );
-          })}
+            ));
+          })()}
         </div>
       </div>
     </section>

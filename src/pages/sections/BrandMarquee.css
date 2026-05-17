@@ -39,6 +39,12 @@
   gap: 4rem;
   width: max-content;
   will-change: transform;
+  animation: scrollMarquee 20s linear infinite;
+}
+
+@keyframes scrollMarquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
 .marquee-item {
