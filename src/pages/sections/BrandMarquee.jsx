@@ -10,14 +10,15 @@ const BrandMarquee = () => {
       const marqueeInner = document.querySelector('.marquee-track');
       if (!marqueeInner) return;
 
+      // Read scrollWidth before modifying DOM to avoid forced synchronous layout
+      const originalWidth = marqueeInner.scrollWidth;
+
       // Clone for seamless loop
       const clone = marqueeInner.innerHTML;
       marqueeInner.innerHTML += clone;
 
-      const totalWidth = marqueeInner.scrollWidth / 2;
-
       gsap.to(marqueeInner, {
-        x: -totalWidth,
+        x: -originalWidth,
         duration: 20,
         ease: "none",
         repeat: -1,
@@ -28,8 +29,8 @@ const BrandMarquee = () => {
   }, []);
 
   const logos = [
-    { src: "/images/drsupplement-logo.webp", alt: "DR Supplement", href: "https://drsupplement.com.tr/" },
-    { src: "/images/ironathletics-logo.webp", alt: "Iron Athletics Club", href: "https://ironathleticsclub.com/" }
+    { src: "/images/drsupplement-logo-small.webp", alt: "DR Supplement", href: "https://drsupplement.com.tr/" },
+    { src: "/images/ironathletics-logo-small.webp", alt: "Iron Athletics Club", href: "https://ironathleticsclub.com/" }
   ];
 
   // Repeat logos a few times so the track is wide enough to loop properly

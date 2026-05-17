@@ -47,7 +47,7 @@ const HeroSection = () => {
       <div 
         className="absolute inset-0 z-0 opacity-100 bg-no-repeat pointer-events-none hidden md:block"
         style={{ 
-          backgroundImage: "url('/hero-cutout.png')",
+          backgroundImage: "url('/hero-cutout.webp')",
           backgroundPosition: "80% 100%", /* Tam sağa yapışmak yerine merkeze daha yakın (Sağdan %20 içeride) */
           backgroundSize: "auto 105%" /* %90'dan %105'e çıkarıldı, ekran yüksekliğinden de büyük, çok daha heybetli */
         }}
@@ -56,7 +56,7 @@ const HeroSection = () => {
       <div 
         className="absolute inset-0 z-0 bg-no-repeat pointer-events-none md:hidden"
         style={{ 
-          backgroundImage: "url('/hero-cutout.png')",
+          backgroundImage: "url('/hero-cutout.webp')",
           backgroundPosition: "center 82%",
           backgroundSize: "125% auto",
           opacity: 0.42
