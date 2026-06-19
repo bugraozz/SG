@@ -67,6 +67,13 @@ const AboutMe = () => {
                     <span>IFBB Men's Physique Open (Milli Sporcu)</span>
                   </div>
                 </div>
+                <div className="achievement-item">
+                  <Medal className="achievement-icon" />
+                  <div>
+                    <h4>2026 Gürcistan Şampiyonası 2.'liği</h4>
+                    <span>NPC Men's Physique </span>
+                  </div>
+                </div>
               </div>
 
               <p className="about-highlight">
