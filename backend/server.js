@@ -411,6 +411,7 @@ app.get('/api/packages', (req, res) => {
       tekli: parsedPackages.filter(p => p.category === 'tekli'),
       coklu: parsedPackages.filter(p => p.category === 'coklu'),
       online: parsedPackages.filter(p => p.category === 'online'),
+      ileri: parsedPackages.filter(p => p.category === 'ileri'),
       msu: parsedPackages.filter(p => p.category === 'msu'),
     };
 

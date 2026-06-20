@@ -355,6 +355,7 @@ const AdminTransformations = () => {
     tekli: 'Tekli Gelişim',
     coklu: 'Çoklu Gelişim',
     online: 'Online Koçluk',
+    ileri: 'İleri Seviye Online Koçluk',
     msu: 'MSÜ Spor Mülakatı'
   };
 
@@ -494,6 +495,7 @@ const AdminTransformations = () => {
                 <option value="tekli">Tekli Gelişim</option>
                 <option value="coklu">Çoklu Gelişim</option>
                 <option value="online">Online Koçluk</option>
+                <option value="ileri">İleri Seviye Online Koçluk</option>
                 <option value="msu">MSÜ Spor Mülakatı</option>
               </select>
             </div>

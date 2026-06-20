@@ -12,7 +12,7 @@ const PricingSection = () => {
   const [activeTab, setActiveTab] = useState('online');
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [allPlans, setAllPlans] = useState({ tekli: [], coklu: [], online: [], msu: [] });
+  const [allPlans, setAllPlans] = useState({ tekli: [], coklu: [], online: [], ileri: [], msu: [] });
   const [loadingPackages, setLoadingPackages] = useState(true);
 
   useEffect(() => {
@@ -22,7 +22,7 @@ const PricingSection = () => {
         const res = await fetch(`${API_URL}/api/packages`);
         const json = await res.json();
         if (json.success) {
-          setAllPlans({ tekli: [], coklu: [], online: [], msu: [], ...(json.data || {}) });
+          setAllPlans({ tekli: [], coklu: [], online: [], ileri: [], msu: [], ...(json.data || {}) });
         }
       } catch (err) {
         console.error("Paketler yüklenemedi", err);
@@ -143,6 +143,12 @@ const PricingSection = () => {
             Online Koçluk
           </button>
           <button
+            className={`pricing-tab-btn ${activeTab === 'ileri' ? 'active' : ''}`}
+            onClick={() => setActiveTab('ileri')}
+          >
+            İleri Seviye Online Koçluk
+          </button>
+          <button
             className={`pricing-tab-btn ${activeTab === 'coklu' ? 'active' : ''}`}
             onClick={() => setActiveTab('coklu')}
           >
@@ -156,7 +162,7 @@ const PricingSection = () => {
           </button>
         </div>
 
-        <div className={`pricing-grid ${activeTab === 'online' || activeTab === 'msu' ? 'grid-4' : ''}`}>
+        <div className={`pricing-grid ${activeTab === 'online' || activeTab === 'ileri' || activeTab === 'msu' ? 'grid-4' : ''}`}>
           {currentPlans.map((plan, i) => {
             const backgroundImageUrl = resolvePackageImageUrl(plan.background_image_url);
             const cardStyle = {
