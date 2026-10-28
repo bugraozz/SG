@@ -6,7 +6,7 @@ const IndirimButton = () => {
     <div className="indirim-btn-wrapper" style={{ position: 'relative', display: 'inline-block' }}>
       <button className="indirim-btn">
         <div className="discount-badge">%10 İndirim</div>
-        <div className="promo-code-badge">Kod: TEGMEN10</div>
+        <div className="promo-code-badge">Kod: TEGMEN</div>
         <div className="bg"></div>
         <svg
           xmlns="http://www.w3.org/2000/svg"

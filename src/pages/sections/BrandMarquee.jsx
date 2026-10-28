@@ -3,8 +3,8 @@ import './BrandMarquee.css';
 
 const BrandMarquee = () => {
   const logos = [
-    { src: "/images/drsupplement-logo-small.webp", alt: "DR Supplement", href: "https://drsupplement.com.tr/" },
-    { src: "/images/ironathletics-logo-small.webp", alt: "Iron Athletics Club", href: "https://ironathleticsclub.com/" }
+    { src: "/images/proteinocean-logo.svg", alt: "Protein Ocean", href: "https://proteinocean.com/", width: 150, height: 62 },
+    { src: "/images/buffwear-logo.png", alt: "Buffwear", href: "https://www.buffwear.com.tr/", width: 240, height: 28, wide: true }
   ];
 
   // Create enough items to fill the screen
@@ -28,10 +28,10 @@ const BrandMarquee = () => {
               <img
                 src={logo.src}
                 alt={logo.alt}
-                className="sponsor-logo"
+                className={`sponsor-logo${logo.wide ? ' sponsor-logo--wide' : ''}`}
                 loading="lazy"
-                width="150"
-                height="50"
+                width={logo.width}
+                height={logo.height}
               />
             </a>
           ))}
